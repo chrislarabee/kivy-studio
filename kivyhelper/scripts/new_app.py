@@ -56,19 +56,18 @@ def setup_kivy_app_py(app_name: str) -> str:
     )
 
 
-def execute():
-    args = assemble_args()
-    a = args.app_name
-    d = Path(args.dir) if args.dir else Path.cwd()
-    print(f'[KIVYHELPER:new_app] Creating Kivy app {a} in {d}...')
+def create_new_app(app_name: str, dir_: str):
+    d = Path(args.dir) if dir_ else Path.cwd()
+    print(f'[KIVYHELPER:new_app] Creating Kivy app {app_name} in {d}...')
 
-    app_dir = d.joinpath(a)
+    app_dir = d.joinpath(app_name)
     app_dir.mkdir(exist_ok=True)
 
-    print(f'-- Creating {a}App.py in {app_dir}...')
-    app_py = app_dir.joinpath(f'{a}App.py')
-    app_py.write_text(setup_kivy_app_py(a))
+    print(f'-- Creating {app_name}App.py in {app_dir}...')
+    app_py = app_dir.joinpath(f'{app_name}App.py')
+    app_py.write_text(setup_kivy_app_py(app_name))
 
 
 if __name__ == "__main__":
-    execute()
+    args = assemble_args()
+    create_new_app(args.app_name, args.dir)
