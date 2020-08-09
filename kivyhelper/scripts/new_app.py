@@ -45,8 +45,8 @@ def setup_kivy_app_py(app_name: str) -> str:
     """
     return (
         "from kivy.app import App\n"
-        "from kivy.uix.floatlayout import FloatLayout\n\n\n"
-        "class AppFrame(FloatLayout):\n"
+        "from kivy.uix.boxlayout import BoxLayout\n\n\n"
+        "class AppFrame(BoxLayout):\n"
         "    pass\n\n\n"
         f"class {app_name}App(App):\n"
         "    def build(self):\n"
@@ -56,16 +56,46 @@ def setup_kivy_app_py(app_name: str) -> str:
     )
 
 
+def setup_kivy_app_kv() -> str:
+    """
+    Generates a file string for the *App kv file in the root kivy app.
+
+    Returns: A string, the kvlang code to save to the App.kv file.
+
+    """
+    return (
+        "<AppFrame>:\n"
+        "    orientation: 'vertical'\n"
+    )
+
+
 def create_new_app(app_name: str, dir_: str):
+    """
+    Convenience function for creating all the basic python and kv files
+    needed by kivy apps.
+
+    Args:
+        app_name: A string, the name of the kivy app.
+        dir_: A string, the path to the directory to create the new app
+            in.
+
+    Returns: None
+
+    """
     d = Path(args.dir) if dir_ else Path.cwd()
     print(f'[KIVYHELPER:new_app] Creating Kivy app {app_name} in {d}...')
 
     app_dir = d.joinpath(app_name)
     app_dir.mkdir(exist_ok=True)
 
-    print(f'-- Creating {app_name}App.py in {app_dir}...')
+    print(f'Populating {app_dir}')
+    print(f'-- Creating {app_name}App.py...')
     app_py = app_dir.joinpath(f'{app_name}App.py')
     app_py.write_text(setup_kivy_app_py(app_name))
+
+    print(f'-- Creating {app_name}.kv...')
+    app_py = app_dir.joinpath(f'{app_name}.kv')
+    app_py.write_text(setup_kivy_app_kv())
 
 
 if __name__ == "__main__":
