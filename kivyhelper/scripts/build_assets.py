@@ -6,7 +6,9 @@ from pathlib import Path
 
 def assemble_aseprite_cli(output_name: str, files: list, target_dir: str):
     return (
-        f"aseprite -b --ignore-empty --list-tags {' '.join(files)} "
+        f"aseprite -b --ignore-empty --list-tags "
+        f"--ignore-layer 'Reference Layer 1' "
+        f"{' '.join(files)} "
         f"--sheet {target_dir}/{output_name}.png "
         f"--data {target_dir}/{output_name}.json"
     )

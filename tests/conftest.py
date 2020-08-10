@@ -24,6 +24,41 @@ def output_data():
 
 
 @pytest.fixture
+def aseprite_json():
+    return {
+        "frames": {
+            "test_sprite 0.aseprite": {
+                "frame": {"x": 0, "y": 32, "w": 32, "h": 32},
+                "rotated": False,
+                "trimmed": False,
+                "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+                "sourceSize": {"w": 32, "h": 32},
+                "duration": 100
+            },
+            "test_sprite 1.aseprite": {
+                "frame": {"x": 32, "y": 32, "w": 32, "h": 32},
+                "rotated": False,
+                "trimmed": False,
+                "spriteSourceSize": {"x": 0, "y": 0, "w": 32, "h": 32},
+                "sourceSize": {"w": 32, "h": 32},
+                "duration": 100
+               }
+        },
+        "meta": {
+            "app": "http://www.aseprite.org/",
+            "version": "1.2.21",
+            "image": "sprites.png",
+            "format": "RGBA8888",
+            "size": {"w": 64, "h": 32},
+            "scale": "1",
+            "frameTags": [
+                {"name": "Start", "from": 0, "to": 1, "direction": "forward"},
+            ]
+        }
+    }
+
+
+@pytest.fixture
 def sprite_files():
     return {
         'sprites': [
@@ -41,6 +76,7 @@ def sprite_files():
 def aseprite_cli(sprite_files):
     return (
         "aseprite -b --ignore-empty --list-tags "
+        f"--ignore-layer 'Reference Layer 1' "
         f"{sprite_files['sprites'][0]} "
         f"{sprite_files['sprites'][1]} "
         f"{sprite_files['sprites'][2]} "

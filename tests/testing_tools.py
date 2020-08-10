@@ -4,7 +4,7 @@ import pytest
 
 
 def check_aseprite():
-    result = os.system('aseprite --help')
+    result = os.system('aseprite --version')
     if result == 1:
         return False
     else:
