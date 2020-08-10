@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 def assemble_aseprite_cli(output_name: str, files: list, target_dir: str):
+    # TODO: Add the ability to alter filename-formats.
     return (
         f"aseprite -b --ignore-empty --list-tags "
         f"--ignore-layer 'Reference Layer 1' "
