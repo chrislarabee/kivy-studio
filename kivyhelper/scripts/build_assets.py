@@ -4,9 +4,11 @@ import re
 from pathlib import Path
 
 
-def assemble_aseprite_cli(files: list):
+def assemble_aseprite_cli(output_name: str, files: list, target_dir: str):
     return (
-        "aseprite -b --ignore-empty --list-tags --split-tags "
+        f"aseprite -b --ignore-empty --list-tags {' '.join(files)} "
+        f"--sheet {target_dir}/{output_name}.png "
+        f"--data {target_dir}/{output_name}.json"
     )
 
 
