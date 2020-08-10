@@ -12,6 +12,10 @@ def assemble_aseprite_cli(output_name: str, files: list, target_dir: str):
     )
 
 
+def execute_aseprite_cli(cli_str: str):
+    os.system(cli_str)
+
+
 def collect_aseprite_files(input_dir: str, ignore: list = None) -> dict:
     """
     Collects aseprite file names from the target directory. Will walk

@@ -1,17 +1,16 @@
 import kivyhelper.scripts.build_assets as ba
 
+from tests import testing_tools
 
-def test_assemble_aseprite_cli(sprite_files):
-    expected = (
-        "aseprite -b --ignore-empty --list-tags "
-        f"{sprite_files['sprites'][0]} "
-        f"{sprite_files['sprites'][1]} "
-        f"{sprite_files['sprites'][2]} "
-        "--sheet tests/test_data/output/sprites.png "
-        "--data tests/test_data/output/sprites.json"
-    )
+
+def test_assemble_aseprite_cli(sprite_files, aseprite_cli):
     assert ba.assemble_aseprite_cli(
-        'sprites', sprite_files['sprites'], 'tests/test_data/output') == expected
+        'sprites', sprite_files['sprites'], 'tests/test_data/output') == aseprite_cli
+
+
+def test_execute_aseprite_cli(aseprite_cli):
+    testing_tools.check_aseprite_skip()
+    ba.execute_aseprite_cli(aseprite_cli)
 
 
 def test_collect_aseprite_files(sprite_files):
