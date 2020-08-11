@@ -4,12 +4,17 @@ import re
 from pathlib import Path
 
 
-def assemble_aseprite_cli(output_name: str, files: list, target_dir: str):
-    # TODO: Add the ability to alter filename-formats.
+def assemble_aseprite_cli(
+        output_name: str,
+        files: list,
+        target_dir: str,
+        filename_format: str = None):
+    filename_format = filename_format if filename_format else '{title}_{tag}_{tagframe}'
     return (
         f"aseprite -b --ignore-empty --list-tags "
         f"--ignore-layer 'Reference Layer 1' "
         f"{' '.join(files)} "
+        f"--filename-format {filename_format} "
         f"--sheet {target_dir}/{output_name}.png "
         f"--data {target_dir}/{output_name}.json"
     )

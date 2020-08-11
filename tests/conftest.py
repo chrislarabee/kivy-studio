@@ -27,7 +27,7 @@ def output_data():
 def aseprite_json():
     return {
         "frames": {
-            "test_sprite 0.aseprite": {
+            "test_sprite_start_0": {
                 "frame": {"x": 0, "y": 32, "w": 32, "h": 32},
                 "rotated": False,
                 "trimmed": False,
@@ -35,7 +35,7 @@ def aseprite_json():
                 "sourceSize": {"w": 32, "h": 32},
                 "duration": 100
             },
-            "test_sprite 1.aseprite": {
+            "test_sprite_start_1": {
                 "frame": {"x": 32, "y": 32, "w": 32, "h": 32},
                 "rotated": False,
                 "trimmed": False,
@@ -80,6 +80,7 @@ def aseprite_cli(sprite_files):
         f"{sprite_files['sprites'][0]} "
         f"{sprite_files['sprites'][1]} "
         f"{sprite_files['sprites'][2]} "
+        "--filename-format {title}_{tag}_{tagframe} "
         "--sheet tests/test_data/output/sprites.png "
         "--data tests/test_data/output/sprites.json"
     )
