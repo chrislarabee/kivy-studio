@@ -86,6 +86,16 @@ def sprite_files(sample_dirs):
 
 
 @pytest.fixture
+def json_files(sample_dirs):
+    return {
+        'jsons': [
+            str(sample_dirs.input_jsons.joinpath('aseprite_json.json')),
+            str(sample_dirs.input_jsons.joinpath('std_json.json')),
+        ]
+    }
+
+
+@pytest.fixture
 def aseprite_cli(sprite_files, sample_dirs):
     return (
         "aseprite -b --ignore-empty --list-tags "
