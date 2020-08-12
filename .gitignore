@@ -1,4 +1,4 @@
 venv/
 .idea/
 __pycache__/
-tests/test_data/output/
+tests/samples/output/

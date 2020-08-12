@@ -9,14 +9,16 @@ def assemble_aseprite_cli(
         files: list,
         target_dir: str,
         filename_format: str = None):
-    filename_format = filename_format if filename_format else '{title}_{tag}_{tagframe}'
+    if not filename_format:
+        filename_format = '{title}_{tag}_{tagframe}'
+    td_path = Path(target_dir)
     return (
         f"aseprite -b --ignore-empty --list-tags "
         f"--ignore-layer 'Reference Layer 1' "
         f"{' '.join(files)} "
         f"--filename-format {filename_format} "
-        f"--sheet {target_dir}/{output_name}.png "
-        f"--data {target_dir}/{output_name}.json"
+        f"--sheet {td_path.joinpath(output_name + '.png')} "
+        f"--data {td_path.joinpath(output_name + '.json')}"
     )
 
 
