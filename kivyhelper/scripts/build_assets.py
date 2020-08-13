@@ -10,7 +10,20 @@ def assemble_aseprite_cli(
         output_name: str,
         files: list,
         target_dir: str,
-        filename_format: str = None):
+        filename_format: str = None) -> str:
+    """
+    Builds a cli line to execute aseprite's CLI API.
+
+    Args:
+        output_name: The name of the desired output png and json files.
+        files: A list of the aseprite files to integrate into the png.
+        target_dir: The directory to save the resulting png and json to.
+        filename_format: A string to be passed to aseprite as the format
+            for each frame in the resulting json.
+
+    Returns: A string that is ready to be executed by os.system.
+
+    """
     if not filename_format:
         filename_format = '{title}_{tag}_{tagframe}'
     td_path = Path(target_dir)
@@ -24,7 +37,17 @@ def assemble_aseprite_cli(
     )
 
 
-def execute_aseprite_cli(cli_str: str):
+def execute_cli_str(cli_str: str):
+    """
+    Simple function to execute a cli_str. Kept separate primarily to
+    ease testing.
+
+    Args:
+        cli_str: A string that can be parsed by a cli/bash.
+
+    Returns: None
+
+    """
     os.system(cli_str)
 
 
@@ -70,6 +93,26 @@ def collect_files(
         if len(input_files) > 0:
             file_grps[group] = input_files
     return file_grps
+
+
+def convert_ase_json_to_atlas(j: dict) -> dict:
+    """
+    Extracts the necessary information from an aseprite json dictionary
+    to create a kivy atlas dictionary.
+
+    Args:
+        j: A dictionary from an aseprite json.
+
+    Returns: A dictionary containing a single key (the name of the png
+        file that j corresponds to), and the frames and their dims from
+        that png file.
+
+    """
+    return {
+        j['meta']['image']: {
+            k: [*v['frame'].values()] for k, v in j['frames'].items()
+        }
+    }
 
 
 def build_assets_folder(input_dir: str, output_dir: str, ignore: list = None):

@@ -71,6 +71,16 @@ def aseprite_json():
 
 
 @pytest.fixture
+def kivy_atlas():
+    return dict(
+        sprites=dict(
+            test_sprite_Start_0=[0, 32, 32, 32],
+            test_sprite_Start_1=[32, 32, 32, 32],
+        )
+    )
+
+
+@pytest.fixture
 def sprite_files(sample_dirs):
     return {
         'sprites': [
