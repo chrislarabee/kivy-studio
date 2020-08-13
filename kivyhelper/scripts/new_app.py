@@ -1,6 +1,8 @@
 import argparse
 from pathlib import Path
 
+from kivyhelper import lib
+
 
 def setup_kivy_app_py(app_name: str) -> str:
     """
@@ -52,13 +54,14 @@ def create_new_app(app_name: str, dir_: str):
     Returns: None
 
     """
-    d = Path(args.dir) if dir_ else Path.cwd()
+    d = Path(dir_) if dir_ else Path.cwd()
+    lib.print_pycharm_bar()
     print(f'[KIVYHELPER:new_app] Creating Kivy app {app_name} in {d}...')
 
     app_dir = d.joinpath(app_name)
     app_dir.mkdir(exist_ok=True)
 
-    print(f'Populating {app_dir}')
+    print(f'-- Populating {app_dir}')
     print(f'-- Creating {app_name}App.py...')
     app_py = app_dir.joinpath(f'{app_name}App.py')
     app_py.write_text(setup_kivy_app_py(app_name))
@@ -66,6 +69,8 @@ def create_new_app(app_name: str, dir_: str):
     print(f'-- Creating {app_name}.kv...')
     app_py = app_dir.joinpath(f'{app_name}.kv')
     app_py.write_text(setup_kivy_app_kv())
+    print('-- App creation complete.')
+    lib.print_pycharm_bar()
 
 
 def assemble_args():
@@ -96,6 +101,7 @@ def assemble_args():
     )
 
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = assemble_args()

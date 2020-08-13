@@ -108,12 +108,12 @@ def json_files(sample_dirs):
 @pytest.fixture
 def aseprite_cli(sprite_files, sample_dirs):
     return (
-        "aseprite -b --ignore-empty --list-tags "
-        f"--ignore-layer 'Reference Layer 1' "
-        f"{sprite_files['sprites'][0]} "
-        f"{sprite_files['sprites'][1]} "
-        f"{sprite_files['sprites'][2]} "
-        "--filename-format {title}_{tag}_{tagframe} "
-        f"--sheet {sample_dirs.output.joinpath('sprites.png')} "
-        f"--data {sample_dirs.output.joinpath('sprites.json')}"
+        'aseprite -b --ignore-empty --list-tags '
+        '--ignore-layer "Reference Layer 1" '
+        f'"{sprite_files["sprites"][0]}" '
+        f'"{sprite_files["sprites"][1]}" '
+        f'"{sprite_files["sprites"][2]}" '
+        '--filename-format {title}_{tag}_{tagframe} '
+        f'--sheet "{sample_dirs.output.joinpath("sprites.png")}" '
+        f'--data "{sample_dirs.output.joinpath("sprites.json")}"'
     )

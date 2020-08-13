@@ -1,6 +1,10 @@
 import json
 
 
+def print_pycharm_bar():
+    print('=' * 96)
+
+
 def read_aseprite_json(file_path: str) -> dict:
     """
     Aseprite produces json files with a lot of line breaks, which is
