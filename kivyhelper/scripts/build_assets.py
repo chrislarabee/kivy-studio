@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import re
 from pathlib import Path
@@ -174,7 +175,7 @@ def build_assets_folder(
     print(f'-- Json conversion to single atlas complete.')
     print(f'-- Writing atlas to sprites.atlas in {d}')
     with open(d.joinpath('sprites.atlas'), 'w') as w:
-        w.write(str(atlas))
+        w.write(json.dumps(atlas))
     print(f'-- Write out complete. Build of assets folder complete.')
     lib.print_pycharm_bar()
     return atlas

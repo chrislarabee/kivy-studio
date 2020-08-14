@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from kivy.atlas import Atlas
 from kivy.clock import Clock
 from kivy.uix.image import Image
@@ -11,7 +13,7 @@ class AtlasPath:
     """
     @property
     def atlas(self):
-        return self._atlas + '/'
+        return self._atlas
 
     @property
     def png(self):
@@ -24,6 +26,10 @@ class AtlasPath:
     @property
     def dir(self):
         return self._dir + '/'
+
+    @property
+    def path(self):
+        return f'{self.dir}{self.atlas}.atlas'
 
     def __init__(
             self,
@@ -40,7 +46,8 @@ class AtlasPath:
             parent_dir: The path to the directory atlas_file is in.
                 Default is the assets folder.
         """
-        self._atlas = atlas_file
+        p = Path(atlas_file)
+        self._atlas = atlas_file if p.suffix != '.atlas' else p.stem
         self._png = png_file
         self._frame = frame_base
         self._dir = parent_dir
@@ -57,23 +64,35 @@ class AtlasPath:
             index in the atlas file.
 
         """
-        return f'atlas://{self.dir}{self.atlas}{self.png}{self.frame}{f}'
+        return f'atlas://{self.dir}{self.atlas}/{self.png}{self.frame}{f}'
 
 
 class Sprite(Image):
-    atlas_str = StringProperty('atlas://')
+    atlas_path = ObjectProperty()
     atlas = ObjectProperty()
+    mode = StringProperty('action')
     anim_event = ObjectProperty()
     time = NumericProperty(0.0)
     rate = NumericProperty(0.15)
     frame_no = NumericProperty(0)
     fps = NumericProperty(1.0 / 6.0)
 
+    def __init__(
+            self,
+            png: str,
+            frame: str,
+            atlas: str = 'sprites.atlas',
+            asset_dir: str = 'assets',
+            **kwargs):
+        super(Sprite, self).__init__(**kwargs)
+        self.atlas_path = AtlasPath(atlas, png, frame, asset_dir)
+        self.atlas = Atlas(self.atlas_path.path)
+
     def update(self, dt):
         self.time += dt
         if self.time > self.rate:
             self.time -= self.rate
-            self.source = 'pass'
+            self.source = self.atlas_path.joinpath(self.frame_no)
             self.frame_no += 1
 
     def loop_start(self):
