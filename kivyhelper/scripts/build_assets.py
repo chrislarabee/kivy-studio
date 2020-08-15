@@ -28,14 +28,13 @@ def assemble_aseprite_cli(
     if not filename_format:
         filename_format = constants.DEFAULT_FF
     td_path = Path(target_dir)
-    file_str = '" "'.join(files)
     return (
         f'aseprite -b --ignore-empty --list-tags '
         f'--ignore-layer "Reference Layer 1" '
-        f'"{file_str}" '
+        f'{" ".join([lib.enquote(f) for f in files])} '
         f'--filename-format {filename_format} '
-        f'--sheet "{td_path.joinpath(output_name + ".png")}" '
-        f'--data "{td_path.joinpath(output_name + ".json")}"'
+        f'--sheet {lib.enquote(td_path.joinpath(output_name + ".png"))} '
+        f'--data {lib.enquote(td_path.joinpath(output_name + ".json"))}'
     )
 
 
@@ -56,7 +55,8 @@ def execute_cli_str(cli_str: str):
 def collect_files(
         input_dir: str,
         ignore: list = None,
-        ext: (str, tuple) = None) -> dict:
+        ext: (str, tuple) = None,
+        sep: str = '_') -> (dict, tuple):
     """
     Collects file names from the target directory. Will walk all
     subdirectories in the directory.
@@ -67,6 +67,8 @@ def collect_files(
             matching any of the expressions will be ignored.
         ext: A string or a tuple of strings, the file extensions to
             collect. If None, will collect all files.
+        sep: When creating group keys, names of folders will be
+            separated with this string.
 
     Returns: A dictionary containing parent directories as groups and
         the corresponding list of target files associated with that
@@ -84,7 +86,7 @@ def collect_files(
     for root, _, files in os.walk(input_dir):
         input_files = []
         root_p = Path(root)
-        group = ''.join(root_p.parts[subroot_idx:])
+        group = sep.join(root_p.parts[subroot_idx:])
         group = root_p.name if len(group) == 0 else group
         for f in files:
             _, e = os.path.splitext(f)
@@ -121,7 +123,8 @@ def build_assets_folder(
         input_dir: str,
         output_dir: str,
         ignore: list = None,
-        filename_format: str = None) -> dict:
+        filename_format: str = None,
+        sep: str = '_') -> dict:
     """
     Creates an assets folder and populates it with exported aseprite
     file information.
@@ -135,6 +138,8 @@ def build_assets_folder(
             any of the passed expressions will be ignored.
         filename_format: A string in the aseprite CLI filename-format
             format. Controls how frames are named.
+        sep: Will be used as the separator whenever combining file paths
+            into strings.
 
     Returns: A dictionary, the resulting atlas dictionary of the
         aseprite file export.
@@ -145,8 +150,9 @@ def build_assets_folder(
     print(
         f'[KIVYHELPER:build_assets] Creating and populating assets folder in '
         f'{d}...')
-    d.mkdir(exist_ok=True)
-    file_groups = collect_files(input_dir, ignore, constants.ASE_EXTS)
+    d.mkdir(parents=True, exist_ok=True)
+    file_groups = collect_files(
+        input_dir, ignore, constants.ASE_EXTS, sep=sep)
     print(f'-- Collected {len(file_groups)} sprite groups.')
     for parent_dir, files in file_groups.items():
         print(f'   > Assembling spritesheet and json for {parent_dir}...')
@@ -165,17 +171,19 @@ def build_assets_folder(
 
     print(f'-- Collected {len(jsons)} json files resulting from export.')
     atlas = dict()
-    print(f'-- Converting json files to single atlas file...')
+    print(f'-- Converting json files to atlas files...')
     for file in jsons:
-        j = convert_ase_json_to_atlas(
+        f = Path(file).stem
+        atlas[f] = convert_ase_json_to_atlas(
             lib.read_aseprite_json(file)
         )
-        atlas = {**atlas, **j}
         # TODO: Remove aseprite jsons once converted to atlas?
-    print(f'-- Json conversion to single atlas complete.')
-    print(f'-- Writing atlas to sprites.atlas in {d}')
-    with open(d.joinpath('sprites.atlas'), 'w') as w:
-        w.write(json.dumps(atlas))
+    print(f'-- Json conversions to atlas complete.')
+    print(f'-- Writing atlases to {d}...')
+    for filename, contents in atlas.items():
+        print(f'   > Writing {filename}.atlas...')
+        with open(d.joinpath(f'{filename}.atlas'), 'w') as w:
+            w.write(json.dumps(contents))
     print(f'-- Write out complete. Build of assets folder complete.')
     lib.print_pycharm_bar()
     return atlas

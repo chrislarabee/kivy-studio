@@ -1,9 +1,9 @@
 import warnings
-from argparse import Namespace
 from pathlib import Path
 
 import pytest
 
+from kivyhelper.lib import enquote
 from tests import testing_tools
 
 
@@ -39,7 +39,7 @@ def output_data(sample_dirs):
 def aseprite_json():
     return {
         "frames": {
-            "test_sprite_Start_0": {
+            "black_Start_0": {
                 "frame": {"x": 0, "y": 32, "w": 32, "h": 32},
                 "rotated": False,
                 "trimmed": False,
@@ -47,7 +47,7 @@ def aseprite_json():
                 "sourceSize": {"w": 32, "h": 32},
                 "duration": 100
             },
-            "test_sprite_Start_1": {
+            "black_Start_1": {
                 "frame": {"x": 32, "y": 32, "w": 32, "h": 32},
                 "rotated": False,
                 "trimmed": False,
@@ -85,12 +85,17 @@ def sprite_files(sample_dirs):
     return {
         'sprites': [
             str(sample_dirs.input_sprites.joinpath('ignore_sprite.aseprite')),
-            str(sample_dirs.input_sprites.joinpath('test_sprite.aseprite')),
             str(sample_dirs.input_sprites.joinpath('test_sprite2.aseprite')),
         ],
-        'spritessprite_subdir': [
+        'sprites_ball': [
             str(sample_dirs.input_sprites.joinpath(
-                'sprite_subdir\\test_subsprite.aseprite')),
+                'ball\\black.aseprite')),
+            str(sample_dirs.input_sprites.joinpath(
+                'ball\\red.aseprite')),
+        ],
+        'sprites_snowflake': [
+            str(sample_dirs.input_sprites.joinpath(
+                'snowflake\\white.aseprite')),
         ]
     }
 
@@ -110,9 +115,7 @@ def aseprite_cli(sprite_files, sample_dirs):
     return (
         'aseprite -b --ignore-empty --list-tags '
         '--ignore-layer "Reference Layer 1" '
-        f'"{sprite_files["sprites"][0]}" '
-        f'"{sprite_files["sprites"][1]}" '
-        f'"{sprite_files["sprites"][2]}" '
+        f'{" ".join([enquote(x) for y in sprite_files.values() for x in y])} '
         '--filename-format {title}_{tag}_{tagframe} '
         f'--sheet "{sample_dirs.output.joinpath("sprites.png")}" '
         f'--data "{sample_dirs.output.joinpath("sprites.json")}"'

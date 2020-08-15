@@ -1,5 +1,5 @@
 { "frames": {
-   "test_sprite_Start_0": {
+   "black_Start_0": {
     "frame": { "x": 0, "y": 32, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -7,7 +7,7 @@
     "sourceSize": { "w": 32, "h": 32 },
     "duration": 100
    },
-   "test_sprite_Start_1": {
+   "black_Start_1": {
     "frame": { "x": 32, "y": 32, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
