@@ -1,6 +1,20 @@
 import json
 
 
+def enquote(x) -> str:
+    """
+    Wraps an object in double quotes. Convenience function to resolve
+    deeply nested single and double quote conflicts in python strings.
+
+    Args:
+        x: Any object
+
+    Returns: A string, the object as a string wrapped in double quotes.
+
+    """
+    return '"' + str(x) + '"'
+
+
 def print_pycharm_bar():
     print('=' * 96)
 
