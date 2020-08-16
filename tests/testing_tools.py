@@ -15,6 +15,9 @@ class SamplePaths:
             kwargs.get('input_jsons'))
         self.output = self.root.joinpath(
             kwargs.get('output'))
+        self.assets = self.root.joinpath(
+            kwargs.get('assets')
+        )
 
 
 def drop_test_dir(test_dir: str):

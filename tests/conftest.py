@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from kivyhelper.lib import enquote
+from kivyhelper.widgets.sprite import Sprite
 from tests import testing_tools
 
 
@@ -27,6 +28,7 @@ def sample_dirs():
         input_sprites='input\\sprites',
         input_jsons='input\\jsons',
         output='output',
+        assets='assets'
     )
 
 
@@ -119,4 +121,12 @@ def aseprite_cli(sprite_files, sample_dirs):
         '--filename-format {title}_{tag}_{tagframe} '
         f'--sheet "{sample_dirs.output.joinpath("sprites.png")}" '
         f'--data "{sample_dirs.output.joinpath("sprites.json")}"'
+    )
+
+
+@pytest.fixture
+def testing_sprite(sample_dirs):
+    return Sprite(
+        sample_dirs.assets.joinpath('sprites_snowflake'),
+        'white_Idle_'
     )
