@@ -1,6 +1,3 @@
-import kivyhelper.widgets.sprite as s
-
-
 class TestSprite:
     def test_basics(self, sample_dirs, testing_sprite):
         assert len(testing_sprite.frames.keys()) == 2
