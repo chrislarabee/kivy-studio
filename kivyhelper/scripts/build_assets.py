@@ -31,6 +31,7 @@ def assemble_aseprite_cli(
     return (
         f'aseprite -b --ignore-empty --list-tags '
         f'--ignore-layer "Reference Layer 1" '
+        # TODO: Add --inner-padding.
         f'{" ".join([lib.enquote(f) for f in files])} '
         f'--filename-format {filename_format} '
         f'--sheet {lib.enquote(td_path.joinpath(output_name + ".png"))} '
@@ -112,6 +113,8 @@ def convert_ase_json_to_atlas(j: dict) -> dict:
         that png file.
 
     """
+    # TODO: Add reversal of y value so that it goes bottom to top and
+    #       not top to bottom (meta[size][h] - h - y).
     return {
         j['meta']['image']: {
             k: [*v['frame'].values()] for k, v in j['frames'].items()

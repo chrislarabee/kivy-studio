@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from kivyhelper.lib import enquote
-from kivyhelper.widgets.sprite import Sprite
+import kivyhelper.widgets.sprite as sp
 from tests import testing_tools
 
 
@@ -126,7 +126,7 @@ def aseprite_cli(sprite_files, sample_dirs):
 
 @pytest.fixture
 def testing_sprite(sample_dirs):
-    return Sprite(
+    return sp.Sprite(
         sample_dirs.assets.joinpath('sprites_snowflake'),
-        'white_Idle_'
+        sp.AnimRule('white', 'Start', 'Idle')
     )
