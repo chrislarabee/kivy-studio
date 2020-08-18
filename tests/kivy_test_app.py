@@ -39,7 +39,7 @@ class SpriteVisualTest(Widget):
     def go(self):
         for w in self._widget.children[1].children:
             print(w.animation)
-            w.tag_start()
+            w.start()
 
 
 visual_tests = dict(

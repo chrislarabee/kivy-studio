@@ -4,7 +4,7 @@ from pathlib import Path
 from kivy.atlas import Atlas
 from kivy.clock import Clock
 from kivy.uix.image import Image
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty
+from kivy.properties import (ObjectProperty, StringProperty, NumericProperty)
 import amanuensis.util as amu
 
 from kivyhelper import constants
@@ -23,9 +23,12 @@ class AnimRule:
         self.dependents: tuple = amu.tuplify(dependents)
         self._pos: int = 0
 
+    def reset(self):
+        self._pos = 0
+
     def __next__(self):
         if self._pos >= len(self.tags):
-            raise StopIteration
+            return None
         else:
             t = self.tags[self._pos]
             self._pos += 1
@@ -55,7 +58,12 @@ class Sprite(Image):
     def animation(self):
         return self._anim_tag
 
-    def __init__(self, atlas: (str, Path), anim_rule: AnimRule, **kwargs):
+    def __init__(
+            self,
+            atlas: (str, Path),
+            anim_rule: AnimRule,
+            persist_rule: AnimRule = None,
+            **kwargs):
         """
         Image widget designed to play animations from a spritesheet via
         a kivy Atlas.
@@ -69,18 +77,22 @@ class Sprite(Image):
         Args:
             atlas: The path to a .atlas file.
             anim_rule: An AnimRule object with information on the tag
-                queue and what to do when the Sprite completes a tag or
-                animation.
+                queue for a given animation sequence.
+            persist_rule: An AnimRule object that, if provided, makes
+                this Sprite persistent. Whenever it's main anim_rule is
+                completed, it will return to persist_rule and use it to
+                idle until it gets a new anim_rule.
             **kwargs: Keyword arguments. This is required due to
                 inheriting Image widget.
         """
         super(Sprite, self).__init__(**kwargs)
         self.anim_rule: AnimRule = anim_rule
+        self.persist_r: AnimRule = persist_rule
         self._anim_tag: str = ''
         self._frames: dict = dict()
         self._atlas: str = self.link_atlas(atlas)
 
-    def link_atlas(self, atlas: (str, Path), anim_rule: AnimRule = None) -> str:
+    def link_atlas(self, atlas: (str, Path), anim_rule: AnimRule = None):
         """
         Links an atlas to this Sprite.
 
@@ -89,14 +101,15 @@ class Sprite(Image):
             anim_rule: A new AnimRule object, if None, the existing
                 AnimRule will be used.
 
-        Returns: The Sprite's new atlas attribute value.
+        Returns: The Sprite, so that this method can be chained
+            immediately into a start() method call.
 
         """
         self._atlas = str(atlas)
         self.anim_rule = anim_rule if anim_rule else self.anim_rule
         self._anim_tag = next(self.anim_rule)
         self._frames = self.collect_frames()
-        return self._atlas
+        return self
 
     def collect_frames(self) -> dict:
         """
@@ -144,60 +157,77 @@ class Sprite(Image):
             self.source = f'atlas://{self._atlas}/{f}'
             self.frame += 1
             if self.frame >= len(self._frames[self._anim_tag]):
-                self.tag_end()
+                self.end()
 
-    def tag_start(self, anim_tag: str = None):
+    @staticmethod
+    def check_anim_tag(anim_tag: str, pat: str) -> bool:
+        """
+        Convenience function for checking a passed anim_tag for a passed
+        pattern.
+        Args:
+            anim_tag: A string.
+            pat: A regex pattern string.
+
+        Returns: A boolean indicating if anim_tag matches pat.
+
+        """
+        return re.search(pat, anim_tag, flags=re.IGNORECASE) is not None
+
+    def start(self, new: (str, AnimRule) = None):
         """
         Starts the current animation + tag's loop or the passed
         animation + tag's loop.
 
         Args:
-            anim_tag: A string, a new animation + tag to start.
+            new: A string, a new animation + tag to start, or an
+                AnimRule object, representing a new AnimRule to release
+                into.
 
         Returns: None
 
         """
         if self.anim_event:
             self.anim_event.cancel()
-        if anim_tag:
-            self._anim_tag = anim_tag
-        self.mode = 'idle' if constants.IDLE in self._anim_tag.lower() else 'action'
+        if isinstance(new, str):
+            self._anim_tag = new
+        elif isinstance(new, AnimRule):
+            self.anim_rule = new
+            self._anim_tag = next(self.anim_rule)
+        idle = self.check_anim_tag(self._anim_tag, constants.IDLE)
+        self.mode = 'idle' if idle else 'action'
         self.frame = 0
         self.anim_event = Clock.schedule_interval(self.update, self.fps)
 
-    def tag_end(self):
+    def end(self):
         """
-        Restarts the animation loop if in idle mode, otherwise ends the
-        animation. If connected to a SpriteManager object, will tell the
-        SpriteManager that its animation has ended.
+        Restarts the tag loop if in idle mode, otherwise ends the tag
+        and auto-releases to the next tag.
 
-        Returns:
+        Returns: None
 
         """
         if self.mode == 'idle':
             self.frame = 0
         else:
-            try:
-                self.tag_start(next(self.anim_rule))
-            # TODO: Add a call to SpriteManager here.
-            except StopIteration:
-                self.anim_event.cancel()
+            self.release()
 
     def release(self):
         """
-        Allows the Sprite to leave its idle tag and advance to the next
-        tag.
+        Allows the Sprite to leave its current tag and advance to the
+        next tag. If no tags remain and the Sprite has a persistent
+        AnimRule object, returns to that state.
 
         Returns: None
 
         """
-        self.tag_start(next(self.anim_rule))
-
-
-class SpriteManager:
-    def __init__(self):
-        self.sprites = dict()
-        self._sprites_list = list()
-
-    def clear_sprite(self, sprite: Sprite, anim: str):
-        pass
+        next_anim = next(self.anim_rule)
+        if next_anim:
+            self.start(next_anim)
+        else:
+            if self.persist_r:
+                self.persist_r.reset()
+                self.anim_rule = self.persist_r
+                self.start(next(self.anim_rule))
+            else:
+                self.anim_event.cancel()
+                self.parent.remove_widget(self)
