@@ -1,3 +1,5 @@
+from random import seed
+
 import kivyhelper.widgets.sprite as sp
 
 
@@ -25,6 +27,22 @@ class TestAnimRule:
         assert next(an) == 'white_Start_'
         assert next(an) == 'white_Idle_'
         assert next(an) is None
+
+    def test_randomize(self):
+        seed(5)
+        tag_queue = ('Base', 'VarA', 'VarB', 'VarC')
+        an = sp.AnimRule('Idle', *tag_queue)
+        assert not an.is_random
+        assert an.randomize() == an
+        assert an.is_random
+        assert an.tags == tag_queue
+        assert an.cur_tags == ('Base', 'VarC', 'VarB', 'VarA')
+        an.randomize(True)
+        assert an.tags == tag_queue
+        assert an.cur_tags == ('Base', 'VarC', 'Base', 'VarA', 'Base', 'VarB')
+        an.reset()
+        assert an.tags == tag_queue
+        assert an.cur_tags == ('Base', 'VarA', 'Base', 'VarC', 'Base', 'VarB')
 
     def test_dependents(self, sample_dirs, testing_sprite):
         an = sp.AnimRule(

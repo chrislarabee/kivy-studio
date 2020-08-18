@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from random import sample
 
 from kivy.atlas import Atlas
 from kivy.clock import Clock
@@ -11,29 +12,93 @@ from kivyhelper import constants
 
 
 class AnimRule:
+    @property
+    def is_random(self):
+        return self._random
+
     def __init__(
             self,
             anim_name: str,
             *tag_queue,
             dependents=None,
             release_on: str = None):
+        """
+        A one stop reference for Sprite objects to control their
+        animations.
+
+        Args:
+            anim_name: The base name of the animation, to be combined
+                with tags from the tag queue.
+            *tag_queue: Any number of strings, the tags that can be
+                found appended to each file name in an atlas created
+                using KivyHelper.
+        """
         self.anim_n: str = anim_name
         self.release_on: str = release_on
         self.tags: tuple = tag_queue
-        self.dependents: tuple = amu.tuplify(dependents)
+        self.cur_tags: tuple = tag_queue
+        self._dependents: tuple = amu.tuplify(dependents)
         self._pos: int = 0
+        self._random: bool = False
+        self._z_buffer: bool = False
+
+    def randomize(self, z_buffer: bool = False):
+        """
+        Randomizes the tag queue. Intended for use with idle animations
+        that have variations you want to run through in random orders.
+
+        The first tag in the original tag queue will be treated as the
+            "rest" state, and will always be the first tag in the
+            randomized queue.
+
+        Args:
+            z_buffer: Set to True if you want the rest state to be
+                inserted between every tag variation. So that the queue
+                looks like (Rest, VariationB, Rest, VariationD...)
+
+        Returns: self
+
+        """
+        self._random = True
+        if not self._z_buffer and z_buffer:
+            self._z_buffer = z_buffer
+        rand_tags = sample(self.tags[1:], len(self.tags[1:]))
+        z = self.tags[0]
+        if self._z_buffer:
+            for i in range(1, len(rand_tags) + 1, 2):
+                rand_tags.insert(i, z)
+        self.cur_tags = (z, *rand_tags)
+        return self
 
     def reset(self):
-        self._pos = 0
+        """
+        Resets the AnimRule's iteration to 0. If AnimRule has been
+        randomized, will re-randomize the tag queue so that it is ready
+        for another pass through it.
 
-    def __next__(self):
-        if self._pos >= len(self.tags):
+        Returns: None
+
+        """
+        self._pos = 0
+        if self._random:
+            self.randomize()
+
+    def __next__(self) -> (str, None):
+        """
+        Advances the tag queue and alerts dependents if the release_on
+        tag has been reached.
+
+        Returns: The next animation + tag string in the tag queue, or
+            None if the tag queue has been completed.
+
+        """
+        if self._pos >= len(self.cur_tags):
             return None
         else:
-            t = self.tags[self._pos]
+            t = self.cur_tags[self._pos]
             self._pos += 1
             if self.release_on and self.release_on == t:
-                for d in self.dependents:
+                for d in self._dependents:
                     d.release()
             return f'{self.anim_n}_{t}_'
 
