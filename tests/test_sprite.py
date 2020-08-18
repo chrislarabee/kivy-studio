@@ -28,6 +28,9 @@ class TestAnimRule:
         assert next(an) == 'white_Idle_'
         assert next(an) is None
 
+        an.dependents = {'Idle': 'test'}
+        assert an.dependents == {'Idle': ('test',)}
+
     def test_randomize(self):
         seed(5)
         tag_queue = ('Base', 'VarA', 'VarB', 'VarC')
@@ -49,8 +52,7 @@ class TestAnimRule:
             'black',
             'Start',
             'Idle',
-            dependents=testing_sprite,
-            release_on='Idle'
+            Idle=testing_sprite
         )
         assert testing_sprite.animation == 'white_Start_'
         assert next(an) == 'black_Start_'

@@ -16,12 +16,19 @@ class AnimRule:
     def is_random(self):
         return self._random
 
+    @property
+    def dependents(self):
+        return self._dependents
+
+    @dependents.setter
+    def dependents(self, dependents: dict):
+        self._dependents = {k: amu.tuplify(v) for k, v in dependents.items()}
+
     def __init__(
             self,
             anim_name: str,
             *tag_queue,
-            dependents=None,
-            release_on: str = None):
+            **dependents):
         """
         A one stop reference for Sprite objects to control their
         animations.
@@ -32,12 +39,15 @@ class AnimRule:
             *tag_queue: Any number of strings, the tags that can be
                 found appended to each file name in an atlas created
                 using KivyHelper.
+            **dependents: Any number of tag names and accompanying
+                Sprites or iterables of Sprites that should be released
+                on the tag name.
         """
         self.anim_n: str = anim_name
-        self.release_on: str = release_on
         self.tags: tuple = tag_queue
         self.cur_tags: tuple = tag_queue
-        self._dependents: tuple = amu.tuplify(dependents)
+        self._dependents: dict = dict()
+        self.dependents = dependents
         self._pos: int = 0
         self._random: bool = False
         self._z_buffer: bool = False
@@ -85,8 +95,8 @@ class AnimRule:
 
     def __next__(self) -> (str, None):
         """
-        Advances the tag queue and alerts dependents if the release_on
-        tag has been reached.
+        Advances the tag queue and alerts dependents if they should
+        be released.
 
         Returns: The next animation + tag string in the tag queue, or
             None if the tag queue has been completed.
@@ -97,8 +107,9 @@ class AnimRule:
         else:
             t = self.cur_tags[self._pos]
             self._pos += 1
-            if self.release_on and self.release_on == t:
-                for d in self._dependents:
+            dep = self._dependents.get(t)
+            if dep:
+                for d in dep:
                     d.release()
             return f'{self.anim_n}_{t}_'
 
