@@ -26,20 +26,51 @@ class SpriteVisualTest(Widget):
         )
         sp2 = sp.Sprite(
             'tests/samples/assets/sprites_ball',
-            sp.AnimRule('black', 'Idle')
+            sp.AnimRule('black', 'Start', 'Idle')
         )
         b = BoxLayout()
         b.add_widget(sp1)
         b.add_widget(sp2)
         self._widget.add_widget(b)
-        btn = Button(size_hint_y=.1, text='End Ball')
-        self._widget.add_widget(btn)
-        btn.bind(on_press=lambda x: sp2.release())
+
+        btn_tray = BoxLayout(size_hint_y=.2, orientation='vertical')
+        row_top = BoxLayout()
+        btn_tray.add_widget(row_top)
+        row_bot = BoxLayout()
+        btn_tray.add_widget(row_bot)
+
+        start_btn = Button(text='Start')
+        start_btn.bind(on_press=lambda x: self.start_sprite_children(b))
+        row_top.add_widget(start_btn)
+
+        left_tray = BoxLayout()
+        row_bot.add_widget(left_tray)
+        right_tray = BoxLayout()
+        row_bot.add_widget(right_tray)
+
+        ball_btn = Button(text='End Ball')
+        ball_btn.bind(on_press=lambda x: sp2.release())
+        right_tray.add_widget(ball_btn)
+
+        color_btn = Button(text='Swap Color')
+        color_btn.bind(on_press=lambda x: sp2.start(
+            sp.AnimRule(
+                dict(red='black', black='red')[sp2.anim_rule.anim_n],
+                'Start',
+                'Idle'
+            )
+        ))
+        right_tray.add_widget(color_btn)
+
+        self._widget.add_widget(btn_tray)
+
+    @staticmethod
+    def start_sprite_children(parent: Widget):
+        for w in parent.children:
+            w.start()
 
     def go(self):
-        for w in self._widget.children[1].children:
-            print(w.animation)
-            w.start()
+        pass
 
 
 visual_tests = dict(
