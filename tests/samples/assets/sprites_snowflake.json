@@ -1,6 +1,6 @@
 { "frames": {
    "white_Start_0": {
-    "frame": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 0, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -8,7 +8,7 @@
     "duration": 100
    },
    "white_Start_1": {
-    "frame": { "x": 32, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 36, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -16,7 +16,7 @@
     "duration": 100
    },
    "white_Start_2": {
-    "frame": { "x": 64, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 72, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -24,7 +24,7 @@
     "duration": 100
    },
    "white_Start_3": {
-    "frame": { "x": 96, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 108, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -32,7 +32,7 @@
     "duration": 100
    },
    "white_Start_4": {
-    "frame": { "x": 128, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 144, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -40,7 +40,7 @@
     "duration": 100
    },
    "white_Idle_0": {
-    "frame": { "x": 160, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 180, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -48,7 +48,7 @@
     "duration": 100
    },
    "white_Idle_1": {
-    "frame": { "x": 192, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 216, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -56,7 +56,7 @@
     "duration": 100
    },
    "white_Idle_2": {
-    "frame": { "x": 224, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 252, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -64,7 +64,7 @@
     "duration": 100
    },
    "white_Idle_3": {
-    "frame": { "x": 256, "y": 0, "w": 32, "h": 32 },
+    "frame": { "x": 288, "y": 0, "w": 36, "h": 36 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -77,7 +77,7 @@
   "version": "1.2.21",
   "image": "sprites_snowflake.png",
   "format": "RGBA8888",
-  "size": { "w": 288, "h": 32 },
+  "size": { "w": 324, "h": 36 },
   "scale": "1",
   "frameTags": [
    { "name": "Start", "from": 0, "to": 4, "direction": "forward" },

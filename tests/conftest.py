@@ -117,6 +117,7 @@ def aseprite_cli(sprite_files, sample_dirs):
     return (
         'aseprite -b --ignore-empty --list-tags '
         '--ignore-layer "Reference Layer 1" '
+        '--inner-padding 2 '
         f'{" ".join([enquote(x) for y in sprite_files.values() for x in y])} '
         '--filename-format {title}_{tag}_{tagframe} '
         f'--sheet "{sample_dirs.output.joinpath("sprites.png")}" '

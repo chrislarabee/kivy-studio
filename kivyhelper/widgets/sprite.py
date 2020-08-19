@@ -166,7 +166,8 @@ class Sprite(Image):
         self.persist_r: AnimRule = persist_rule
         self._anim_tag: str = ''
         self._frames: dict = dict()
-        self._atlas: str = self.link_atlas(atlas)
+        self._atlas: str = ''
+        self.link_atlas(atlas)
 
     def link_atlas(self, atlas: (str, Path), anim_rule: AnimRule = None):
         """

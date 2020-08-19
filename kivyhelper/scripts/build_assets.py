@@ -31,7 +31,7 @@ def assemble_aseprite_cli(
     return (
         f'aseprite -b --ignore-empty --list-tags '
         f'--ignore-layer "Reference Layer 1" '
-        # TODO: Add --inner-padding.
+        f'--inner-padding 2 '
         f'{" ".join([lib.enquote(f) for f in files])} '
         f'--filename-format {filename_format} '
         f'--sheet {lib.enquote(td_path.joinpath(output_name + ".png"))} '
@@ -113,13 +113,16 @@ def convert_ase_json_to_atlas(j: dict) -> dict:
         that png file.
 
     """
-    # TODO: Add reversal of y value so that it goes bottom to top and
-    #       not top to bottom (meta[size][h] - h - y).
-    return {
-        j['meta']['image']: {
-            k: [*v['frame'].values()] for k, v in j['frames'].items()
-        }
-    }
+    k = j['meta']['image']
+    size = j['meta']['size']['h']
+    result = {k: dict()}
+    for f, features in j['frames'].items():
+        result[k][f] = []
+        for d, v in features['frame'].items():
+            h = features['frame']['h']
+            n = max(0, size - h - v) if d == 'y' else v
+            result[k][f].append(n)
+    return result
 
 
 def build_assets_folder(

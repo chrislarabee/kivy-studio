@@ -26,7 +26,7 @@ def test_execute_aseprite_cli(aseprite_cli, sample_dirs):
     j = lib.read_aseprite_json(sample_dirs.output.joinpath('sprites.json'))
     assert list(j.keys()) == ['frames', 'meta']
     assert len(j['frames']) == 58
-    assert j['meta']['size'] == dict(w=512, h=160)
+    assert j['meta']['size'] == dict(w=576, h=180)
 
 
 def test_assemble_aseprite_cli(sprite_files, aseprite_cli, sample_dirs):
@@ -74,8 +74,8 @@ def test_collect_json_files(json_files, sample_dirs):
 def test_convert_ase_json_to_atlas(aseprite_json):
     expected = {
         'sprites.png': dict(
-            black_Start_0=[0, 32, 32, 32],
-            black_Start_1=[32, 32, 32, 32],
+            black_Start_0=[0, 0, 32, 32],
+            black_Start_1=[32, 0, 32, 32],
         )
     }
     assert ba.convert_ase_json_to_atlas(aseprite_json) == expected
