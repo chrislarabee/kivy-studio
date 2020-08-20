@@ -6,7 +6,17 @@ setuptools.setup(
     author='Chris Larabee',
     author_email='quill9@gmail.com',
     packages=['kivyhelper', 'kivyhelper.scripts', 'kivyhelper.widgets'],
-    install_requires=[],
+    install_requires=[
+        'pytest',
+        'docutils',
+        'pygments',
+        'pypiwin32',
+        'kivy_deps.sdl2==0.1.*',
+        'kivy_deps.glew==0.1.*',
+        'kivy_deps.gstreamer==0.1.*',
+        'kivy==1.11.1',
+        'git+https://github.com/Larquebus/Amanuensis#egg=amanuensis',
+    ],
     version='0.1.0',
     license='Creative Commons',
     description=('A suite of pre-built widgets and helper scripts to '
