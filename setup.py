@@ -15,6 +15,9 @@ setuptools.setup(
         'kivy_deps.gstreamer==0.1.*',
         'kivy==1.11.1',
     ],
+    dependency_links=[
+        'https://github.com/Larquebus/Amanuensis#egg=amanuensis',
+    ],
     version='0.1.0',
     license='Creative Commons',
     description=('A suite of pre-built widgets and helper scripts to '
