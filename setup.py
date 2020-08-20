@@ -7,7 +7,6 @@ setuptools.setup(
     author_email='quill9@gmail.com',
     packages=['kivyhelper', 'kivyhelper.scripts', 'kivyhelper.widgets'],
     install_requires=[
-        'pytest',
         'docutils',
         'pygments',
         'pypiwin32',
