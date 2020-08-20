@@ -58,7 +58,7 @@ def create_new_app(app_name: str, dir_: str):
     lib.print_pycharm_bar()
     print(f'[KIVYHELPER:new_app] Creating Kivy app {app_name} in {d}...')
 
-    app_dir = d.joinpath(app_name)
+    app_dir = d.joinpath('game')
     app_dir.mkdir(exist_ok=True)
 
     print(f'-- Populating {app_dir}')
