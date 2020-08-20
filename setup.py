@@ -1,11 +1,11 @@
-from setuptools import setup
+import setuptools
 
-setup(
+setuptools.setup(
     name='kivyhelper',
     url='https://github.com/Larquebus/kivyhelper',
     author='Chris Larabee',
     author_email='quill9@gmail.com',
-    packages=['kivyhelper'],
+    packages=setuptools.find_packages(),
     install_requires=[],
     version='0.1.0',
     license='Creative Commons',
