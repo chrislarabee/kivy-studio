@@ -24,11 +24,11 @@ class DefaultNode(Node):
         return data
 
 
-class Handler(metaclass=abc.ABCMeta):
+class Handler:
     def __init__(self):
         """
         Handler is designed to act as a central repository for all text-
-        based game data, with as each attribute being a Node object that
+        based game data, with each attribute being a Node object that
         contains the processed data from a jsonl file.
 
         It is recommended that you create a Handler object that inherits
