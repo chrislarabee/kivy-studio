@@ -1,4 +1,4 @@
-import kivyhelper.handler as ha
+import kivyhelper.codex as ha
 
 
 class SampleNode(ha.Node):
@@ -8,14 +8,26 @@ class SampleNode(ha.Node):
         return data
 
 
+class SampleCodex(ha.Codex):
+    def __init__(self):
+        super(SampleCodex, self).__init__()
+        self.sample_data = None
+
+
 class TestNode:
     def test_registry(self, sample_dirs):
         assert ha.Node.__subclasscheck__(SampleNode)
 
 
-class TestHandler:
+class TestCodex:
+    def test_inheritance(self, sample_dirs):
+        h = SampleCodex.from_dir(sample_dirs.input_jsons)
+        assert isinstance(h, SampleCodex)
+        assert getattr(h, 'jl_sample') == SampleNode
+        assert getattr(h, 'jl_sample2') == ha.DefaultNode
+
     def test_from_dir(self, sample_dirs):
-        h = ha.Handler.from_dir(sample_dirs.input_jsons)
+        h = ha.Codex.from_dir(sample_dirs.input_jsons)
         assert getattr(h, 'jl_sample') == SampleNode
         assert getattr(h, 'jl_sample2') == ha.DefaultNode
 
@@ -25,9 +37,9 @@ class TestHandler:
             dict(a=4, b=5, c=6),
             dict(a=7, b=8, c=9),
         ]
-        assert ha.Handler._load_jsonlines(
+        assert ha.Codex._load_jsonlines(
             sample_dirs.input_jsons.joinpath('jl_sample.jsonl')
         ) == expected
 
     def test_get_node_by_assoc_file(self):
-        assert ha.Handler.get_node_by_assoc_file('jl_sample') == SampleNode
+        assert ha.Codex._get_node_by_assoc_file('jl_sample') == SampleNode

@@ -3,6 +3,8 @@ from pathlib import Path
 
 import jsonlines
 
+from kivyhelper import constants
+
 
 # noinspection PyPropertyDefinition
 class Node(metaclass=abc.ABCMeta):
@@ -20,18 +22,22 @@ class Node(metaclass=abc.ABCMeta):
 class DefaultNode(Node):
     assoc_file = ''
 
+    def __init__(self):
+        self.data = None
+
     def process(self, data: list):
-        return data
+        self.data = data
+        return self.data
 
 
-class Handler:
+class Codex:
     def __init__(self):
         """
-        Handler is designed to act as a central repository for all text-
+        Codex is designed to act as a central repository for all text-
         based game data, with each attribute being a Node object that
         contains the processed data from a jsonl file.
 
-        It is recommended that you create a Handler object that inherits
+        It is recommended that you create a Codex object that inherits
         from this class and which contains the attributes you'll want it
         to have on __init__ to ease code completion.
         """
@@ -40,28 +46,38 @@ class Handler:
     @classmethod
     def from_dir(cls, dir_path: (str, Path)):
         """
-        Creates a Handler object from a directory containing jsonl
+        Creates a Codex object from a directory containing jsonl
         files.
 
         Args:
             dir_path: The path to a directory.
 
-        Returns: A Handler object or child object.
+        Returns: A Codex object or child object.
 
         """
         dir_path = Path(dir_path)
+        if constants.DEBUG:
+            print(f'[DEBUG][KIVYHELPER:Codex:from_dir]')
+            print(f'[DEBUG] Creating Codex from {dir_path}...')
         new_handler = cls()
         for file in dir_path.iterdir():
             p = Path(file)
             if p.suffix == '.jsonl':
+                if constants.DEBUG:
+                    print(f'[DEBUG] -- Loading {p}...')
                 data = cls._load_jsonlines(p)
-                n = cls.get_node_by_assoc_file(p.stem)
+                n = cls._get_node_by_assoc_file(p.stem)
                 setattr(new_handler, p.stem, n)
+                if constants.DEBUG:
+                    print(f'[DEBUG] -- Processing data with '
+                          f'{n.__name__} Node object...')
                 n().process(data)
+        if constants.DEBUG:
+            print(f'[DEBUG][KIVYHELPER:Codex:from_dir][END]')
         return new_handler
 
     @staticmethod
-    def get_node_by_assoc_file(assoc_file: str):
+    def _get_node_by_assoc_file(assoc_file: str):
         """
 
         Args:
