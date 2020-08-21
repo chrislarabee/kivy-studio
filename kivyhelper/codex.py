@@ -66,12 +66,12 @@ class Codex:
                 if constants.DEBUG:
                     print(f'[DEBUG] -- Loading {p}...')
                 data = cls._load_jsonlines(p)
-                n = cls._get_node_by_assoc_file(p.stem)
+                n = cls._get_node_by_assoc_file(p.stem)()
                 setattr(new_handler, p.stem, n)
                 if constants.DEBUG:
                     print(f'[DEBUG] -- Processing data with '
                           f'{n.__name__} Node object...')
-                n().process(data)
+                n.process(data)
         if constants.DEBUG:
             print(f'[DEBUG][KIVYHELPER:Codex:from_dir][END]')
         return new_handler
