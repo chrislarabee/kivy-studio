@@ -35,7 +35,7 @@ class TestCodex:
         expected = [
             dict(a=1, b=2, c=3),
             dict(a=4, b=5, c=6),
-            dict(a=7, b=8, c=9),
+            dict(a=7, b=8, c=None),
         ]
         assert cx.Codex._load_jsonlines(
             sample_dirs.input_jsons.joinpath('jl_sample.jsonl')
