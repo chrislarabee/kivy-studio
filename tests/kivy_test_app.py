@@ -2,7 +2,7 @@ import sys
 
 from kivy.app import App
 from kivy.graphics import Color, Rectangle
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -12,6 +12,8 @@ import kivyhelper.widgets.sprite as sp
 
 
 class SpriteVisualTest(Widget):
+    ball_color = StringProperty('black')
+
     @property
     def widget(self):
         return self._widget
@@ -53,16 +55,18 @@ class SpriteVisualTest(Widget):
         right_tray.add_widget(ball_btn)
 
         color_btn = Button(text='Swap Color')
-        color_btn.bind(on_press=lambda x: sp2.start(
-            sp.AnimRule(
-                dict(red='black', black='red')[sp2.anim_rule.anim_n],
-                'Start',
-                'Idle'
-            )
-        ))
+        color_btn.bind(on_press=lambda x: sp2.start(self.swap_ball_color()))
         right_tray.add_widget(color_btn)
 
         self._widget.add_widget(btn_tray)
+
+    def swap_ball_color(self) -> sp.AnimRule:
+        self.ball_color = dict(red='black', black='red')[self.ball_color]
+        return sp.AnimRule(
+            self.ball_color,
+            'Start',
+            'Idle'
+        )
 
     @staticmethod
     def start_sprite_children(parent: Widget):

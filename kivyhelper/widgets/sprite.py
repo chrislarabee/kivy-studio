@@ -9,7 +9,6 @@ from kivy.atlas import Atlas
 from kivy.clock import Clock
 from kivy.uix.image import Image
 from kivy.properties import (ObjectProperty, StringProperty, NumericProperty)
-import amanuensis.util as amu
 
 from kivyhelper import constants
 
@@ -62,20 +61,35 @@ class AnimRule:
                 with tags from the tag queue.
             *tag_queue: Any number of strings, the tags that can be
                 found appended to each file name in an atlas created
-                using KivyHelper.
+                using KivyHelper. These will be combined with anim_name
+                to form the tag queue. If at any point you want the
+                AnimRule to switch to a new base anim_name, include it
+                in the tag queue with a * appended to the string and it
+                will be treated as a new base for the tags that follow
+                it.
             **dependents: Any number of tag names and accompanying
                 Sprites or iterables of Sprites that should be released
                 on the tag name.
         """
-        self.anim_n: str = anim_name
-        self.tags: Tuple[str] = tag_queue
-        self.cur_tags: Tuple[str] = tag_queue
+        self.tags: Tuple[str] = self.assemble_tags(anim_name, *tag_queue)
+        self.cur_tags: Tuple[str] = self.assemble_tags(anim_name, *tag_queue)
         self._dependents: Dict[str, Tuple[AnimRule]] = dict()
         self.dependents = dependents
         self._parent: (Sprite, None) = None
         self._pos: int = 0
         self._random: bool = False
         self._z_buffer: bool = False
+
+    @staticmethod
+    def assemble_tags(anim_name: str, *tags) -> Tuple[str]:
+        result = []
+        cur_root = anim_name
+        for t in tags:
+            if t[-1] == '*':
+                cur_root = t[:-1]
+            else:
+                result.append(f'{cur_root}_{t}')
+        return tuple(result)
 
     def randomize(self, z_buffer: bool = False) -> AnimRule:
         """
@@ -145,7 +159,7 @@ class AnimRule:
             if dep:
                 for d in dep:
                     d.release()
-            return f'{self.anim_n}_{t}_'
+            return f'{t}_'
 
     def __iter__(self) -> AnimRule:
         return self
@@ -372,9 +386,9 @@ class Sprite(Image):
         if next_anim:
             self.start(next_anim)
         else:
-            if self.persist_r:
-                self.persist_r.reset()
-                self.anim_rule = self.persist_r
+            if self.persist_rule:
+                self.persist_rule.reset()
+                self.anim_rule = self.persist_rule
                 self.start(next(self.anim_rule))
             else:
                 self.anim_event.cancel()
