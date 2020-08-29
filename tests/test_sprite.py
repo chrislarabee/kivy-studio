@@ -1,5 +1,8 @@
 from random import seed
 
+import amanuensis
+import pytest
+
 import kivyhelper.widgets.sprite as sp
 
 
@@ -20,16 +23,29 @@ class TestSprite:
         assert not sp.Sprite.check_anim_tag('bridle', pattern)
         assert sp.Sprite.check_anim_tag('Idle_Var1', pattern)
 
+    def test_link_rule(self, testing_sprite):
+        an = sp.AnimRule('black', 'Start', 'Idle')
+        an = testing_sprite.link_rule(an)
+        assert an.parent_sprite == testing_sprite
+
 
 class TestAnimRule:
-    def test_basics(self):
+    def test_basics(self, testing_sprite):
         an = sp.AnimRule('white', 'Start', 'Idle')
         assert next(an) == 'white_Start_'
         assert next(an) == 'white_Idle_'
         assert next(an) is None
 
-        an.dependents = {'Idle': 'test'}
-        assert an.dependents == {'Idle': ('test',)}
+        with pytest.raises(
+                TypeError, match='Dependents must be tag: AnimRule'):
+            an.dependents = {'Idle': 'test'}
+
+        an.parent_sprite = testing_sprite
+        assert an.parent_sprite == testing_sprite
+        with pytest.raises(
+                TypeError,
+                match="Sprite object. Passed object type = <class 'str'>"):
+            an.parent_sprite = 'bad_parent'
 
     def test_randomize(self):
         seed(5)
@@ -48,11 +64,18 @@ class TestAnimRule:
         assert an.cur_tags == ('Base', 'VarA', 'Base', 'VarC', 'Base', 'VarB')
 
     def test_dependents(self, sample_dirs, testing_sprite):
+        an0 = sp.AnimRule(
+            'white',
+            'Start',
+            'Idle'
+        )
+        next(an0)
+        testing_sprite.anim_rule = an0
         an = sp.AnimRule(
             'black',
             'Start',
             'Idle',
-            Idle=testing_sprite
+            Idle=an0
         )
         assert testing_sprite.animation == 'white_Start_'
         assert next(an) == 'black_Start_'

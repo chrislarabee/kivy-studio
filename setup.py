@@ -15,9 +15,10 @@ setuptools.setup(
         'kivy_deps.gstreamer==0.1.*',
         'kivy==1.11.1',
         'jsonlines',
-        'amanuensis @ git+https://github.com/Larquebus/Amanuensis#egg=amanuensis'
+        'amanuensis @ git+https://github.com/Larquebus/'
+        'Amanuensis#egg=amanuensis'
     ],
-    version='0.1.1',
+    version='0.1.2',
     license='Creative Commons',
     description=('A suite of pre-built widgets and helper scripts to '
                  'facilitate building a Kivy-based app. '),

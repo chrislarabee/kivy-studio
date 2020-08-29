@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import re
 from pathlib import Path
 from random import sample
+from typing import Dict, Tuple, List
 
 from kivy.atlas import Atlas
 from kivy.clock import Clock
@@ -13,21 +16,42 @@ from kivyhelper import constants
 
 class AnimRule:
     @property
-    def is_random(self):
+    def is_random(self) -> bool:
         return self._random
 
     @property
-    def dependents(self):
+    def dependents(self) -> Dict[str, Tuple[AnimRule]]:
         return self._dependents
 
     @dependents.setter
     def dependents(self, dependents: dict):
-        self._dependents = {k: amu.tuplify(v) for k, v in dependents.items()}
+        def _tuple(x):
+            if isinstance(x, AnimRule):
+                return (x,)
+            elif isinstance(x, tuple):
+                return x
+            else:
+                raise TypeError(
+                    f'Dependents must be tag: AnimRule/Tuple[AnimRule] pairs.')
+        self._dependents = {k: _tuple(v) for k, v in dependents.items()}
+
+    @property
+    def parent_sprite(self) -> Sprite:
+        return self._parent
+
+    @parent_sprite.setter
+    def parent_sprite(self, new_parent: Sprite):
+        if isinstance(new_parent, Sprite):
+            self._parent = new_parent
+        else:
+            raise TypeError(
+                f'Anim rule parent_sprite must be a Sprite object. Passed '
+                f'object type = {type(new_parent)}')
 
     def __init__(
             self,
             anim_name: str,
-            *tag_queue,
+            *tag_queue: str,
             **dependents):
         """
         A one stop reference for Sprite objects to control their
@@ -44,15 +68,16 @@ class AnimRule:
                 on the tag name.
         """
         self.anim_n: str = anim_name
-        self.tags: tuple = tag_queue
-        self.cur_tags: tuple = tag_queue
-        self._dependents: dict = dict()
+        self.tags: Tuple[str] = tag_queue
+        self.cur_tags: Tuple[str] = tag_queue
+        self._dependents: Dict[str, Tuple[AnimRule]] = dict()
         self.dependents = dependents
+        self._parent: (Sprite, None) = None
         self._pos: int = 0
         self._random: bool = False
         self._z_buffer: bool = False
 
-    def randomize(self, z_buffer: bool = False):
+    def randomize(self, z_buffer: bool = False) -> AnimRule:
         """
         Randomizes the tag queue. Intended for use with idle animations
         that have variations you want to run through in random orders.
@@ -80,7 +105,16 @@ class AnimRule:
         self.cur_tags = (z, *rand_tags)
         return self
 
-    def reset(self):
+    def release(self) -> None:
+        """
+        Activates the parent_sprite's release method.
+
+        Returns: None
+
+        """
+        self.parent_sprite.release()
+
+    def reset(self) -> None:
         """
         Resets the AnimRule's iteration to 0. If AnimRule has been
         randomized, will re-randomize the tag queue so that it is ready
@@ -113,7 +147,7 @@ class AnimRule:
                     d.release()
             return f'{self.anim_n}_{t}_'
 
-    def __iter__(self):
+    def __iter__(self) -> AnimRule:
         return self
 
 
@@ -133,6 +167,22 @@ class Sprite(Image):
     @property
     def animation(self):
         return self._anim_tag
+
+    @property
+    def anim_rule(self):
+        return self._anim_rule
+
+    @anim_rule.setter
+    def anim_rule(self, new_rule: AnimRule):
+        self._anim_rule = self.link_rule(new_rule)
+
+    @property
+    def persist_rule(self):
+        return self._persist_r
+
+    @persist_rule.setter
+    def persist_rule(self, new_rule: AnimRule):
+        self._persist_r = self.link_rule(new_rule)
 
     def __init__(
             self,
@@ -162,33 +212,54 @@ class Sprite(Image):
                 inheriting Image widget.
         """
         super(Sprite, self).__init__(**kwargs)
-        self.anim_rule: AnimRule = anim_rule
-        self.persist_r: AnimRule = persist_rule
+        self._anim_rule: (AnimRule, None) = None
+        self.anim_rule = anim_rule
+        self._persist_r: (AnimRule, None) = None
+        if persist_rule:
+            self.persist_rule = persist_rule
         self._anim_tag: str = ''
-        self._frames: dict = dict()
+        self._frames: Dict[str, List[str]] = dict()
         self._atlas: str = ''
         self.link_atlas(atlas)
 
-    def link_atlas(self, atlas: (str, Path), anim_rule: AnimRule = None):
+    def link_atlas(
+            self,
+            atlas: (str, Path),
+            anim_rule: AnimRule = None) -> Sprite:
         """
         Links an atlas to this Sprite.
 
         Args:
             atlas: The path to a .atlas file.
             anim_rule: A new AnimRule object, if None, the existing
-                AnimRule will be used.
+                AnimRule will be maintained.
 
         Returns: The Sprite, so that this method can be chained
             immediately into a start() method call.
 
         """
         self._atlas = str(atlas)
-        self.anim_rule = anim_rule if anim_rule else self.anim_rule
+        if anim_rule:
+            self.anim_rule = anim_rule
         self._anim_tag = next(self.anim_rule)
         self._frames = self.collect_frames()
         return self
 
-    def collect_frames(self) -> dict:
+    def link_rule(self, anim_rule: AnimRule) -> AnimRule:
+        """
+        Links the passed AnimRule to this Sprite, making the Sprite its
+        parent.
+
+        Args:
+            anim_rule: An AnimRule object.
+
+        Returns: The AnimRule object.
+
+        """
+        anim_rule.parent_sprite = self
+        return anim_rule
+
+    def collect_frames(self) -> Dict[str, List[str]]:
         """
         Changes a dictionary like this:
         {"sprites_snowflake.png": {
@@ -217,7 +288,7 @@ class Sprite(Image):
                     results[frame].append(f)
         return results
 
-    def update(self, dt):
+    def update(self, dt) -> None:
         """
         Advances the sprite to the next image in the tag.
 
@@ -250,7 +321,7 @@ class Sprite(Image):
         """
         return re.search(pat, anim_tag, flags=re.IGNORECASE) is not None
 
-    def start(self, new: (str, AnimRule) = None):
+    def start(self, new: (str, AnimRule) = None) -> None:
         """
         Starts the current animation + tag's loop or the passed
         animation + tag's loop.
@@ -275,7 +346,7 @@ class Sprite(Image):
         self.frame = 0
         self.anim_event = Clock.schedule_interval(self.update, self.fps)
 
-    def end(self):
+    def end(self) -> None:
         """
         Restarts the tag loop if in idle mode, otherwise ends the tag
         and auto-releases to the next tag.
@@ -288,7 +359,7 @@ class Sprite(Image):
         else:
             self.release()
 
-    def release(self):
+    def release(self) -> None:
         """
         Allows the Sprite to leave its current tag and advance to the
         next tag. If no tags remain and the Sprite has a persistent
