@@ -155,6 +155,12 @@ class AnimRule:
         else:
             t = self.cur_tags[self._pos]
             self._pos += 1
+            # TODO: Figure out how to make it so that AnimRules are
+            #       released upon *completion* of the tag they depend
+            #       on.
+            # TODO: Figure out how to make it so released AnimRule
+            #       parents don't start animating the moment they are
+            #       released?
             dep = self._dependents.get(t)
             if dep:
                 for d in dep:
