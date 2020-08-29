@@ -19,7 +19,7 @@ class AnimRule:
         return self._random
 
     @property
-    def dependents(self) -> Dict[str, Tuple[AnimRule]]:
+    def dependents(self) -> Dict[str, Tuple[AnimRule, ...]]:
         return self._dependents
 
     @dependents.setter
@@ -47,6 +47,18 @@ class AnimRule:
                 f'Anim rule parent_sprite must be a Sprite object. Passed '
                 f'object type = {type(new_parent)}')
 
+    @property
+    def tags(self) -> Tuple[str, ...]:
+        return self._tags
+
+    @tags.setter
+    def tags(self, anim_name: str, *tags: str):
+        self._tags = self.assemble_tags(anim_name, *tags)
+
+    @property
+    def cur_tags(self) -> Tuple[str, ...]:
+        return self._cur_tags
+
     def __init__(
             self,
             anim_name: str,
@@ -71,9 +83,10 @@ class AnimRule:
                 Sprites or iterables of Sprites that should be released
                 on the tag name.
         """
-        self.tags: Tuple[str] = self.assemble_tags(anim_name, *tag_queue)
-        self.cur_tags: Tuple[str] = self.assemble_tags(anim_name, *tag_queue)
-        self._dependents: Dict[str, Tuple[AnimRule]] = dict()
+        self._tags: Tuple[str, ...] = self.assemble_tags(anim_name, *tag_queue)
+        self._cur_tags: Tuple[str, ...] = self.assemble_tags(
+            anim_name, *tag_queue)
+        self._dependents: Dict[str, Tuple[AnimRule, ...]] = dict()
         self.dependents = dependents
         self._parent: (Sprite, None) = None
         self._pos: int = 0
@@ -81,7 +94,7 @@ class AnimRule:
         self._z_buffer: bool = False
 
     @staticmethod
-    def assemble_tags(anim_name: str, *tags) -> Tuple[str]:
+    def assemble_tags(anim_name: str, *tags: str) -> Tuple[str, ...]:
         result = []
         cur_root = anim_name
         for t in tags:
@@ -116,7 +129,7 @@ class AnimRule:
         if self._z_buffer:
             for i in range(1, len(rand_tags) + 1, 2):
                 rand_tags.insert(i, z)
-        self.cur_tags = (z, *rand_tags)
+        self._cur_tags = (z, *rand_tags)
         return self
 
     def release(self) -> None:
@@ -238,7 +251,7 @@ class Sprite(Image):
         if persist_rule:
             self.persist_rule = persist_rule
         self._anim_tag: str = ''
-        self._frames: Dict[str, List[str]] = dict()
+        self._frames: Dict[str, List[str, ...]] = dict()
         self._atlas: str = ''
         self.link_atlas(atlas)
 
@@ -279,7 +292,7 @@ class Sprite(Image):
         anim_rule.parent_sprite = self
         return anim_rule
 
-    def collect_frames(self) -> Dict[str, List[str]]:
+    def collect_frames(self) -> Dict[str, List[str, ...]]:
         """
         Changes a dictionary like this:
         {"sprites_snowflake.png": {
