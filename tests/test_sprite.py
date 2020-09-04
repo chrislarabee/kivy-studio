@@ -28,6 +28,10 @@ class TestSprite:
         an = testing_sprite.link_rule(an)
         assert an.parent_sprite == testing_sprite
 
+    def test_start(self, testing_sprite):
+        t = testing_sprite.start()
+        assert t == 0.83
+
 
 class TestAnimRule:
     def test_basics(self, testing_sprite):

@@ -250,6 +250,8 @@ class Sprite(Image):
         self._persist_r: (AnimRule, None) = None
         if persist_rule:
             self.persist_rule = persist_rule
+        # TODO: Add option to make an AnimRule an auto-release rule, so
+        #       it can essentially act like a meta idle animation.
         self._anim_tag: str = ''
         self._frames: Dict[str, List[str, ...]] = dict()
         self._atlas: str = ''
@@ -354,7 +356,7 @@ class Sprite(Image):
         """
         return re.search(pat, anim_tag, flags=re.IGNORECASE) is not None
 
-    def start(self, new: (str, AnimRule) = None) -> None:
+    def start(self, new: (str, AnimRule) = None) -> float:
         """
         Starts the current animation + tag's loop or the passed
         animation + tag's loop.
@@ -364,7 +366,8 @@ class Sprite(Image):
                 AnimRule object, representing a new AnimRule to release
                 into.
 
-        Returns: None
+        Returns: The # of seconds it will take to run the animation that
+            is started.
 
         """
         if self.anim_event:
@@ -378,6 +381,7 @@ class Sprite(Image):
         self.mode = 'idle' if idle else 'action'
         self.frame = 0
         self.anim_event = Clock.schedule_interval(self.update, self.fps)
+        return round(len(self._frames[self._anim_tag]) * self.fps, 2)
 
     def end(self) -> None:
         """
@@ -392,23 +396,24 @@ class Sprite(Image):
         else:
             self.release()
 
-    def release(self) -> None:
+    def release(self) -> (float, None):
         """
         Allows the Sprite to leave its current tag and advance to the
         next tag. If no tags remain and the Sprite has a persistent
         AnimRule object, returns to that state.
 
-        Returns: None
+        Returns: The # of seconds it will take to run the animation that
+            is started, if applicable, otherwise None.
 
         """
         next_anim = next(self.anim_rule)
         if next_anim:
-            self.start(next_anim)
+            return self.start(next_anim)
         else:
             if self.persist_rule:
                 self.persist_rule.reset()
                 self.anim_rule = self.persist_rule
-                self.start(next(self.anim_rule))
+                return self.start(next(self.anim_rule))
             else:
                 self.anim_event.cancel()
                 self.parent.remove_widget(self)
