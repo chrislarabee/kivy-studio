@@ -63,6 +63,7 @@ class AnimRule:
             self,
             anim_name: str,
             *tag_queue: str,
+            auto_release: bool = False,
             **dependents):
         """
         A one stop reference for Sprite objects to control their
@@ -79,10 +80,14 @@ class AnimRule:
                 in the tag queue with a * appended to the string and it
                 will be treated as a new base for the tags that follow
                 it.
+            auto_release: If True, the AnimRule will instruct its parent
+                Sprite not to stop for idle animations but instead move
+                on to the next animation.
             **dependents: Any number of tag names and accompanying
                 Sprites or iterables of Sprites that should be released
                 on the tag name.
         """
+        self.auto_release: bool = auto_release
         self._tags: Tuple[str, ...] = self.assemble_tags(anim_name, *tag_queue)
         self._cur_tags: Tuple[str, ...] = self.assemble_tags(
             anim_name, *tag_queue)
@@ -92,6 +97,7 @@ class AnimRule:
         self._pos: int = 0
         self._random: bool = False
         self._z_buffer: bool = False
+        self.last_step: str = ''
 
     @staticmethod
     def assemble_tags(anim_name: str, *tags: str) -> Tuple[str, ...]:
@@ -166,18 +172,9 @@ class AnimRule:
         if self._pos >= len(self.cur_tags):
             return None
         else:
-            t = self.cur_tags[self._pos]
+            t = self._cur_tags[self._pos]
+            self.last_step = t
             self._pos += 1
-            # TODO: Figure out how to make it so that AnimRules are
-            #       released upon *completion* of the tag they depend
-            #       on.
-            # TODO: Figure out how to make it so released AnimRule
-            #       parents don't start animating the moment they are
-            #       released?
-            dep = self._dependents.get(t)
-            if dep:
-                for d in dep:
-                    d.release()
             return f'{t}_'
 
     def __iter__(self) -> AnimRule:
@@ -186,7 +183,7 @@ class AnimRule:
 
 class Sprite(Image):
     _atlas = ObjectProperty()
-    mode = StringProperty('action')
+    mode = StringProperty('continue')
     anim_event = ObjectProperty()
     time = NumericProperty(0.0)
     rate = NumericProperty(0.15)
@@ -194,15 +191,15 @@ class Sprite(Image):
     fps = NumericProperty(1.0 / 6.0)
 
     @property
-    def frames(self):
+    def frames(self) -> Dict[str, List[str]]:
         return self._frames
 
     @property
-    def animation(self):
+    def animation(self) -> str:
         return self._anim_tag
 
     @property
-    def anim_rule(self):
+    def anim_rule(self) -> AnimRule:
         return self._anim_rule
 
     @anim_rule.setter
@@ -210,7 +207,7 @@ class Sprite(Image):
         self._anim_rule = self.link_rule(new_rule)
 
     @property
-    def persist_rule(self):
+    def persist_rule(self) -> AnimRule:
         return self._persist_r
 
     @persist_rule.setter
@@ -248,12 +245,12 @@ class Sprite(Image):
         self._anim_rule: (AnimRule, None) = None
         self.anim_rule = anim_rule
         self._persist_r: (AnimRule, None) = None
+        if self.anim_rule.auto_release:
+            persist_rule = anim_rule
         if persist_rule:
             self.persist_rule = persist_rule
-        # TODO: Add option to make an AnimRule an auto-release rule, so
-        #       it can essentially act like a meta idle animation.
         self._anim_tag: str = ''
-        self._frames: Dict[str, List[str, ...]] = dict()
+        self._frames: Dict[str, List[str]] = dict()
         self._atlas: str = ''
         self.link_atlas(atlas)
 
@@ -276,7 +273,6 @@ class Sprite(Image):
         self._atlas = str(atlas)
         if anim_rule:
             self.anim_rule = anim_rule
-        self._anim_tag = next(self.anim_rule)
         self._frames = self.collect_frames()
         return self
 
@@ -294,7 +290,7 @@ class Sprite(Image):
         anim_rule.parent_sprite = self
         return anim_rule
 
-    def collect_frames(self) -> Dict[str, List[str, ...]]:
+    def collect_frames(self) -> Dict[str, List[str]]:
         """
         Changes a dictionary like this:
         {"sprites_snowflake.png": {
@@ -377,8 +373,13 @@ class Sprite(Image):
         elif isinstance(new, AnimRule):
             self.anim_rule = new
             self._anim_tag = next(self.anim_rule)
+        elif new is None:
+            self._anim_tag = next(self.anim_rule)
         idle = self.check_anim_tag(self._anim_tag, constants.IDLE)
-        self.mode = 'idle' if idle else 'action'
+        if idle and not self.anim_rule.auto_release:
+            self.mode = 'idle'
+        else:
+            self.mode = 'continue'
         self.frame = 0
         self.anim_event = Clock.schedule_interval(self.update, self.fps)
         return round(len(self._frames[self._anim_tag]) * self.fps, 2)
@@ -394,6 +395,7 @@ class Sprite(Image):
         if self.mode == 'idle':
             self.frame = 0
         else:
+            self.release_dependents(self._anim_rule.last_step)
             self.release()
 
     def release(self) -> (float, None):
@@ -417,3 +419,7 @@ class Sprite(Image):
             else:
                 self.anim_event.cancel()
                 self.parent.remove_widget(self)
+
+    def release_dependents(self, tag: str) -> None:
+        for anim_rule in self.anim_rule.dependents.get(tag, []):
+            anim_rule.release()

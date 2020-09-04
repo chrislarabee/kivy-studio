@@ -11,11 +11,11 @@ class TestSprite:
         assert len(testing_sprite.frames.keys()) == 2
         assert len(testing_sprite.frames['white_Start_']) == 5
         assert len(testing_sprite.frames['white_Idle_']) == 4
+        assert testing_sprite.animation == ''
+        assert testing_sprite.mode == 'continue'
+        testing_sprite.start()
         assert testing_sprite.animation == 'white_Start_'
-        assert testing_sprite.mode == 'action'
-        testing_sprite.release()
-        assert testing_sprite.animation == 'white_Idle_'
-        assert testing_sprite.mode == 'idle'
+        assert testing_sprite.mode == 'continue'
 
     def test_check_anim_tag(self):
         pattern = r'(^|_)idle_'
@@ -77,23 +77,3 @@ class TestAnimRule:
         assert an.cur_tags == (
             'Idle_Base', 'Idle_VarA', 'Idle_Base', 'Idle_VarC', 'Idle_Base',
             'Idle_VarB')
-
-    def test_dependents(self, sample_dirs, testing_sprite):
-        an0 = sp.AnimRule(
-            'white',
-            'Start',
-            'Idle'
-        )
-        next(an0)
-        testing_sprite.anim_rule = an0
-        an = sp.AnimRule(
-            'black',
-            'Start',
-            'Idle',
-            black_Idle=an0
-        )
-        assert testing_sprite.animation == 'white_Start_'
-        assert next(an) == 'black_Start_'
-        assert testing_sprite.animation == 'white_Start_'
-        assert next(an) == 'black_Idle_'
-        assert testing_sprite.animation == 'white_Idle_'

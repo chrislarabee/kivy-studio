@@ -22,13 +22,14 @@ class SpriteVisualTest(Widget):
         super(SpriteVisualTest, self).__init__(**kwargs)
         self._widget = BoxLayout(orientation='vertical')
 
+        ball_rule = sp.AnimRule('black', 'Start', 'Idle')
         sp1 = sp.Sprite(
             'tests/samples/assets/sprites_snowflake',
-            sp.AnimRule('white', 'Start', 'Idle')
+            sp.AnimRule('white', 'Start', 'Idle', white_Start=ball_rule)
         )
         sp2 = sp.Sprite(
             'tests/samples/assets/sprites_ball',
-            sp.AnimRule('black', 'Start', 'Idle')
+            ball_rule
         )
         b = BoxLayout()
         b.add_widget(sp1)
@@ -42,7 +43,7 @@ class SpriteVisualTest(Widget):
         btn_tray.add_widget(row_bot)
 
         start_btn = Button(text='Start')
-        start_btn.bind(on_press=lambda x: self.start_sprite_children(b))
+        start_btn.bind(on_press=lambda x: sp1.start())
         row_top.add_widget(start_btn)
 
         left_tray = BoxLayout()
