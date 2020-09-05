@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import kivyhelper.scripts.build_assets as ba
+import kivyhelper.scripts.build_assets.lib as ba
 import kivyhelper.lib as lib
 from kivyhelper import constants
 from tests import testing_tools
