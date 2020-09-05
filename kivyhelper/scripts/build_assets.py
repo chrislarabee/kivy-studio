@@ -32,6 +32,7 @@ def assemble_aseprite_cli(
         f'aseprite -b --ignore-empty --list-tags '
         f'--ignore-layer "Reference Layer 1" '
         f'--inner-padding 2 '
+        f'--sheet-pack '
         f'{" ".join([lib.enquote(f) for f in files])} '
         f'--filename-format {filename_format} '
         f'--sheet {lib.enquote(td_path.joinpath(output_name + ".png"))} '
@@ -114,13 +115,21 @@ def convert_ase_json_to_atlas(j: dict) -> dict:
 
     """
     k = j['meta']['image']
-    size = j['meta']['size']['h']
+    total_h = j['meta']['size']['h']
+    total_w = j['meta']['size']['w']
+    if total_h > constants.OPEN_GL_LIMIT or total_w > constants.OPEN_GL_LIMIT:
+        print(
+            f'Warning: Image {k} dimensions ({total_w} x {total_h}) are '
+            f'greater than OpenGL texture dim size limit of '
+            f'{constants.OPEN_GL_LIMIT}. This image will not be rendered '
+            f'properly in Kivy.'
+        )
     result = {k: dict()}
     for f, features in j['frames'].items():
         result[k][f] = []
         for d, v in features['frame'].items():
             h = features['frame']['h']
-            n = max(0, size - h - v) if d == 'y' else v
+            n = max(0, total_h - h - v) if d == 'y' else v
             result[k][f].append(n)
     return result
 

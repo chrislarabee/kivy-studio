@@ -26,7 +26,7 @@ def test_execute_aseprite_cli(aseprite_cli, sample_dirs):
     j = lib.read_aseprite_json(sample_dirs.output.joinpath('sprites.json'))
     assert list(j.keys()) == ['frames', 'meta']
     assert len(j['frames']) == 58
-    assert j['meta']['size'] == dict(w=576, h=180)
+    assert j['meta']['size'] == dict(w=216, h=216)
 
 
 def test_assemble_aseprite_cli(sprite_files, aseprite_cli, sample_dirs):
