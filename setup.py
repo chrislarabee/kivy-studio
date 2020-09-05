@@ -5,7 +5,13 @@ setuptools.setup(
     url='https://github.com/Larquebus/kivyhelper',
     author='Chris Larabee',
     author_email='quill9@gmail.com',
-    packages=['kivyhelper', 'kivyhelper.scripts', 'kivyhelper.widgets'],
+    packages=[
+        'kivyhelper',
+        'kivyhelper.scripts',
+        'kivyhelper.widgets',
+        'kivyhelper.scripts.build_assets',
+        'kivyhelper.scripts.new_app',
+    ],
     install_requires=[
         'docutils',
         'pygments',
@@ -18,7 +24,7 @@ setuptools.setup(
         'amanuensis @ git+https://github.com/Larquebus/'
         'Amanuensis#egg=amanuensis'
     ],
-    version='0.2.3',
+    version='0.2.4',
     license='Creative Commons',
     description=('A suite of pre-built widgets and helper scripts to '
                  'facilitate building a Kivy-based app. '),
