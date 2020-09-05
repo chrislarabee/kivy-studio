@@ -204,7 +204,7 @@ class Sprite(Image):
 
     @anim_rule.setter
     def anim_rule(self, new_rule: AnimRule):
-        self._anim_rule = self.link_rule(new_rule)
+        self._anim_rule = self.link_rule(new_rule) if new_rule else None
 
     @property
     def persist_rule(self) -> AnimRule:
@@ -217,7 +217,7 @@ class Sprite(Image):
     def __init__(
             self,
             atlas: (str, Path),
-            anim_rule: AnimRule,
+            anim_rule: AnimRule = None,
             persist_rule: AnimRule = None,
             **kwargs):
         """
@@ -245,7 +245,7 @@ class Sprite(Image):
         self._anim_rule: (AnimRule, None) = None
         self.anim_rule = anim_rule
         self._persist_r: (AnimRule, None) = None
-        if self.anim_rule.auto_release:
+        if self.anim_rule and self.anim_rule.auto_release:
             persist_rule = anim_rule
         if persist_rule:
             self.persist_rule = persist_rule
