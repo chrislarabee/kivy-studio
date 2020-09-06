@@ -382,7 +382,20 @@ class Sprite(Image):
             self.mode = 'continue'
         self.frame = 0
         self.anim_event = Clock.schedule_interval(self.update, self.fps)
-        return round(len(self._frames[self._anim_tag]) * self.fps, 2)
+        return self.get_anim_time(self._anim_tag)
+
+    def get_anim_time(self, animation: str) -> float:
+        """
+
+        Args:
+            animation: An animation tag found in the atlas attached to
+                this Sprite.
+
+        Returns: The time in seconds it will take to complete that
+            animation tag from start to finish.
+
+        """
+        return round(len(self._frames[animation]) * self.fps, 2)
 
     def end(self) -> None:
         """

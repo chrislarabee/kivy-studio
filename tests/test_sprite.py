@@ -1,6 +1,5 @@
 from random import seed
 
-import amanuensis
 import pytest
 
 import kivyhelper.widgets.sprite as sp
@@ -31,6 +30,10 @@ class TestSprite:
     def test_start(self, testing_sprite):
         t = testing_sprite.start()
         assert t == 0.83
+
+    def test_get_anim_time(self, testing_sprite):
+        assert testing_sprite.get_anim_time('white_Start_') == 0.83
+        assert testing_sprite.get_anim_time('white_Idle_') == 0.67
 
 
 class TestAnimRule:
