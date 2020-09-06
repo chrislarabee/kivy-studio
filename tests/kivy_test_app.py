@@ -1,6 +1,7 @@
 import sys
 
 from kivy.app import App
+from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.anchorlayout import AnchorLayout
@@ -9,6 +10,7 @@ from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 
 import kivyhelper.widgets.sprite as sp
+import kivyhelper.widgets.dialogue as di
 
 
 class SpriteVisualTest(Widget):
@@ -74,8 +76,41 @@ class SpriteVisualTest(Widget):
         pass
 
 
+class DialogueBoxVisualTest(Widget):
+    @property
+    def widget(self):
+        return self._widget
+
+    def __init__(self, **kwargs):
+        super(DialogueBoxVisualTest, self).__init__(**kwargs)
+        self._widget = BoxLayout(orientation='vertical')
+
+        lines = [
+            di.DialogueLine('Alpha', 'Some test dialogue.'),
+            di.DialogueLine('Beta', 'Another line of test dialogue!'),
+        ]
+        lbl = Label(text='Lines will appear here.')
+        d = di.DialogueBox(
+            lines,
+            display_text_on=lbl
+        )
+        a = AnchorLayout(anchor_x='center', anchor_y='center')
+        a.add_widget(lbl)
+        d.add_widget(a)
+
+        self._widget.add_widget(d)
+
+        btn = Button(text='Next Line', size_hint_y=.1)
+        btn.bind(on_press=lambda x: d.next_line())
+        self._widget.add_widget(btn)
+
+    def go(self):
+        pass
+
+
 visual_tests = dict(
     sprite=SpriteVisualTest(),
+    dialogue=DialogueBoxVisualTest()
 )
 
 

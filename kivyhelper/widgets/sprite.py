@@ -366,7 +366,7 @@ class Sprite(Image):
         Advances the sprite to the next image in the tag.
 
         Args:
-            dt: A delta, passed by the kivy Clock.
+            dt: A time delta, passed by the kivy Clock.
 
         Returns: None
 
@@ -438,6 +438,18 @@ class Sprite(Image):
 
         """
         return round(len(self._frames[animation]) * self.fps, 2)
+
+    def get_total_anim_time(self) -> float:
+        """
+
+        Returns: The total time it will take to run through every
+            animation tag found in the atlas attached to this Sprite.
+
+        """
+        total = 0
+        for f in self._frames.keys():
+            total += self.get_anim_time(f)
+        return round(total, 2)
 
     def end(self) -> None:
         """

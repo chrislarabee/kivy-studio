@@ -35,6 +35,9 @@ class TestSprite:
         assert testing_sprite.get_anim_time('white_Start_') == 0.83
         assert testing_sprite.get_anim_time('white_Idle_') == 0.67
 
+    def test_get_total_anim_time(self, testing_sprite):
+        assert testing_sprite.get_total_anim_time() == 1.5
+
 
 class TestAnimRule:
     def test_basics(self, testing_sprite):
