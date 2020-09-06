@@ -61,7 +61,8 @@ class DialogueBox(FloatLayout):
         if self._pos < len(self.lines):
             d_line = self.lines[self._pos]
             self.reset_dialogue()
-            self.display_spkr_on.text = d_line.speaker
+            if self.display_spkr_on:
+                self.display_spkr_on.text = d_line.speaker
             t = self.get_text_time(self._pos)
             for char in d_line.text:
                 self._events.append(Clock.schedule_once(
@@ -123,7 +124,8 @@ class DialogueBox(FloatLayout):
         """
         self._frame = 0
         self.display_text_on.text = ''
-        self.display_spkr_on.text = ''
+        if self.display_spkr_on:
+            self.display_spkr_on.text = ''
         if len(self._events) > 0:
             for event in self._events:
                 event.cancel()
