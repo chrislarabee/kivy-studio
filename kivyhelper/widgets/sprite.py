@@ -23,7 +23,9 @@ class AnimRule:
         return self._dependents
 
     @dependents.setter
-    def dependents(self, dependents: dict):
+    def dependents(
+            self,
+            dependents: Dict[str, (AnimRule, Tuple[AnimRule, ...])]):
         def _tuple(x):
             if isinstance(x, AnimRule):
                 return (x,)
@@ -33,6 +35,14 @@ class AnimRule:
                 raise TypeError(
                     f'Dependents must be tag: AnimRule/Tuple[AnimRule] pairs.')
         self._dependents = {k: _tuple(v) for k, v in dependents.items()}
+
+    @property
+    def atlas_change(self) -> Dict[str, str]:
+        return self._atlas_change
+
+    @atlas_change.setter
+    def atlas_change(self, sheet_triggers: Dict[str, str]):
+        self._atlas_change = sheet_triggers
 
     @property
     def parent_sprite(self) -> Sprite:
@@ -63,8 +73,7 @@ class AnimRule:
             self,
             anim_name: str,
             *tag_queue: str,
-            auto_release: bool = False,
-            **dependents):
+            auto_release: bool = False):
         """
         A one stop reference for Sprite objects to control their
         animations.
@@ -83,16 +92,13 @@ class AnimRule:
             auto_release: If True, the AnimRule will instruct its parent
                 Sprite not to stop for idle animations but instead move
                 on to the next animation.
-            **dependents: Any number of tag names and accompanying
-                Sprites or iterables of Sprites that should be released
-                on the tag name.
         """
         self.auto_release: bool = auto_release
         self._tags: Tuple[str, ...] = self.assemble_tags(anim_name, *tag_queue)
         self._cur_tags: Tuple[str, ...] = self.assemble_tags(
             anim_name, *tag_queue)
         self._dependents: Dict[str, Tuple[AnimRule, ...]] = dict()
-        self.dependents = dependents
+        self._atlas_change: Dict[str, str] = dict()
         self._parent: (Sprite, None) = None
         self._pos: int = 0
         self._random: bool = False
@@ -127,6 +133,8 @@ class AnimRule:
         Returns: self
 
         """
+        # TODO: Add an argument that allows randomize to not use every
+        #       tag in self.tags in a given randomized cur_tags set.
         self._random = True
         if not self._z_buffer and z_buffer:
             self._z_buffer = z_buffer
@@ -136,6 +144,38 @@ class AnimRule:
             for i in range(1, len(rand_tags) + 1, 2):
                 rand_tags.insert(i, z)
         self._cur_tags = (z, *rand_tags)
+        return self
+
+    def set_dependents(self, **dependents) -> AnimRule:
+        """
+        Sets the AnimRule to trigger other AnimRules to release their
+        parent Sprites on finishing a given anim_tag.
+
+        Args:
+            **dependents: Any number of animation and tag combos and
+                accompanying AnimRules or tuples of AnimRules that
+                should be released after that anim_tag is completed.
+
+        Returns: self
+
+        """
+        self.dependents = dependents
+        return self
+
+    def set_atlas_change(self, **sheet_triggers) -> AnimRule:
+        """
+        Sets the AnimRule to trigger a spritesheet change in its parent
+        Sprite on finishing a given anim_tag.
+
+        Args:
+            **sheet_triggers: Any number of animation and tag combos and
+                the new atlas path that the parent Sprite should be
+                linked to after that anim_tag is completed.
+
+        Returns: self
+
+        """
+        self.atlas_change = sheet_triggers
         return self
 
     def release(self) -> None:
@@ -172,6 +212,8 @@ class AnimRule:
         if self._pos >= len(self.cur_tags):
             return None
         else:
+            if self.last_step in self.atlas_change.keys():
+                self._parent.link_atlas(self.atlas_change[self.last_step])
             t = self._cur_tags[self._pos]
             self.last_step = t
             self._pos += 1

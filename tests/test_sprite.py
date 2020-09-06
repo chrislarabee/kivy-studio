@@ -80,3 +80,23 @@ class TestAnimRule:
         assert an.cur_tags == (
             'Idle_Base', 'Idle_VarA', 'Idle_Base', 'Idle_VarC', 'Idle_Base',
             'Idle_VarB')
+
+    def test_set_dependents(self):
+        an0 = sp.AnimRule('black', 'Start', 'Idle')
+        an = sp.AnimRule('white', 'Start', 'Idle').set_dependents(
+            white_Start=an0)
+        assert an.dependents == dict(white_Start=(an0,))
+
+    def test_set_atlas_change(self, sample_dirs, testing_sprite):
+        an = sp.AnimRule('Idle', 'Base', 'VarA').set_atlas_change(
+            Idle_Base=sample_dirs.assets.joinpath('sprites_ball'))
+        assert an.atlas_change == dict(
+            Idle_Base=sample_dirs.assets.joinpath('sprites_ball'))
+
+        testing_sprite.anim_rule = an
+        assert next(an) == 'Idle_Base_'
+        assert testing_sprite._atlas == (
+            'tests\\samples\\assets\\sprites_snowflake')
+        assert next(an) == 'Idle_VarA_'
+        assert testing_sprite._atlas == (
+            'tests\\samples\\assets\\sprites_ball')

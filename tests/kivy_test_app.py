@@ -25,7 +25,8 @@ class SpriteVisualTest(Widget):
         ball_rule = sp.AnimRule('black', 'Start', 'Idle')
         sp1 = sp.Sprite(
             'tests/samples/assets/sprites_snowflake',
-            sp.AnimRule('white', 'Start', 'Idle', white_Start=ball_rule)
+            sp.AnimRule(
+                'white', 'Start', 'Idle').set_dependents(white_Start=ball_rule)
         )
         sp2 = sp.Sprite(
             'tests/samples/assets/sprites_ball',
@@ -68,11 +69,6 @@ class SpriteVisualTest(Widget):
             'Start',
             'Idle'
         )
-
-    @staticmethod
-    def start_sprite_children(parent: Widget):
-        for w in parent.children:
-            w.start()
 
     def go(self):
         pass
