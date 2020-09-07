@@ -65,7 +65,7 @@ class DialogueBox(FloatLayout):
             finish.
 
         """
-        if self._pos < len(self.lines):
+        if not self.complete:
             d_line = self.lines[self._pos]
             self.reset_dialogue()
             if self.display_spkr_on:
@@ -77,9 +77,9 @@ class DialogueBox(FloatLayout):
                 ))
                 self._frame += self.speed
             self._pos += 1
+            if self._pos >= len(self.lines):
+                self.complete = True
             return t
-        else:
-            self.complete = True
 
     def get_text_time(self, line_idx: int) -> float:
         """
@@ -146,6 +146,7 @@ class DialogueBox(FloatLayout):
 
         """
         self._pos = 0
+        self.complete = False
         self.reset_dialogue()
 
     def link_lines(self, new_lines: DialogueLine) -> DialogueBox:
