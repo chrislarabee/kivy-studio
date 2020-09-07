@@ -366,7 +366,8 @@ class Sprite(Image):
         Advances the sprite to the next image in the tag.
 
         Args:
-            dt: A time delta, passed by the kivy Clock.
+            dt: Elapsed time between scheduling this call and actual
+                call, passed by the kivy Clock.
 
         Returns: None
 

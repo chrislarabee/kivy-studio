@@ -52,10 +52,14 @@ class DialogueBox(FloatLayout):
         self._frame: float = 0
         self._events: list = []
 
-    def next_line(self) -> (float, None):
+    def next_line(self, dt) -> (float, None):
         """
         Schedules a series of Clock events, one for each character to
         display in the next line of dialogue.
+
+        Args:
+            dt: Elapsed time between scheduling this call and actual
+                call, passed by the kivy Clock.
 
         Returns: The time it will take to display the line from start to
             finish.
