@@ -32,17 +32,20 @@ class DialogueBox(FloatLayout):
     speed = NumericProperty(0.01)
     complete = BooleanProperty(False)
 
-    def __init__(self, lines: DialogueLines, **kwargs):
+    def __init__(self, **kwargs):
         """
         Widget designed to display dialogue character by character, and
         the name of the speaker of said dialogue.
 
         Args:
-            lines: A set of lines of dialogue, converted into
-                DialogueLines objects.
-            **kwargs: Keyword arguments. This is required due to
-                inheriting FloatLayout widget.
+            **kwargs: Keyword arguments.
+                lines: A set of lines of dialogue, converted into
+                    DialogueLines objects.
         """
+        if 'lines' in kwargs.keys():
+            lines = kwargs.pop('lines')
+        else:
+            lines = []
         super(DialogueBox, self).__init__(**kwargs)
         self.lines: DialogueLines = lines
         self._pos: int = 0
