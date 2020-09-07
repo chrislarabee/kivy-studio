@@ -52,7 +52,7 @@ class DialogueBox(FloatLayout):
         self._frame: float = 0
         self._events: list = []
 
-    def next_line(self, dt) -> (float, None):
+    def next_line(self, dt=None) -> (float, None):
         """
         Schedules a series of Clock events, one for each character to
         display in the next line of dialogue.
