@@ -10,9 +10,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 
-import kivyhelper.widgets.sprite as sp
-import kivyhelper.widgets.dialogue as di
-import kivyhelper.widgets.behavior as be
+import kivyhelper.widgets as wd
 
 
 class SpriteVisualTest(Widget):
@@ -26,13 +24,13 @@ class SpriteVisualTest(Widget):
         super(SpriteVisualTest, self).__init__(**kwargs)
         self._widget = BoxLayout(orientation='vertical')
 
-        ball_rule = sp.AnimRule('black', 'Start', 'Idle')
-        sp1 = sp.Sprite(
+        ball_rule = wd.AnimRule('black', 'Start', 'Idle')
+        sp1 = wd.Sprite(
             'tests/samples/assets/sprites_snowflake',
-            sp.AnimRule(
+            wd.AnimRule(
                 'white', 'Start', 'Idle').set_dependents(white_Start=ball_rule)
         )
-        sp2 = sp.Sprite(
+        sp2 = wd.Sprite(
             'tests/samples/assets/sprites_ball',
             ball_rule
         )
@@ -66,9 +64,9 @@ class SpriteVisualTest(Widget):
 
         self._widget.add_widget(btn_tray)
 
-    def swap_ball_color(self) -> sp.AnimRule:
+    def swap_ball_color(self) -> wd.AnimRule:
         self.ball_color = dict(red='black', black='red')[self.ball_color]
-        return sp.AnimRule(
+        return wd.AnimRule(
             self.ball_color,
             'Start',
             'Idle'
@@ -79,6 +77,8 @@ class SpriteVisualTest(Widget):
 
 
 class DialogueBoxVisualTest(Widget):
+    lbl_background = ObjectProperty()
+
     @property
     def widget(self):
         return self._widget
@@ -88,16 +88,31 @@ class DialogueBoxVisualTest(Widget):
         self._widget = BoxLayout(orientation='vertical')
 
         lines = [
-            di.DialogueLine('Alpha', 'Some test dialogue.'),
-            di.DialogueLine('Beta', 'Another line of test dialogue!'),
+            wd.DialogueLine('Alpha', 'Some test dialogue.'),
+            wd.DialogueLine('Beta', 'Another line of test dialogue!'),
         ]
-        lbl = Label(text='Lines will appear here.')
-        d = di.DialogueBox(
+
+        lbl = wd.WrapLabel(text='Lines will appear here.')
+        d = wd.DialogueBox(
             lines=lines,
             display_text_on=lbl
         )
+        tt = AnchorLayout(
+            anchor_x='center',
+            anchor_y='center',
+            size_hint=(.2, .1))
+
+        tt.add_widget(lbl)
+
+        with tt.canvas.before:
+            Color(0, 0, 0, 1)
+            self.lbl_background = Rectangle()
+        tt.bind(size=lambda *x: setattr(
+            self.lbl_background, 'size', x[1]))
+        tt.bind(pos=lambda *x: setattr(
+            self.lbl_background, 'pos', x[1]))
         a = AnchorLayout(anchor_x='center', anchor_y='center')
-        a.add_widget(lbl)
+        a.add_widget(tt)
         d.add_widget(a)
 
         self._widget.add_widget(d)
@@ -110,7 +125,7 @@ class DialogueBoxVisualTest(Widget):
         pass
 
 
-class CornerWidget(FloatLayout, be.MouseoverBehavior):
+class CornerWidget(FloatLayout, wd.MouseoverBehavior):
     center_label = ObjectProperty()
     display_str = StringProperty('')
     background = ObjectProperty()
