@@ -1,6 +1,7 @@
 import sys
 
 from kivy.app import App
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle
 from kivy.properties import ObjectProperty, StringProperty
@@ -11,6 +12,7 @@ from kivy.uix.widget import Widget
 
 import kivyhelper.widgets.sprite as sp
 import kivyhelper.widgets.dialogue as di
+import kivyhelper.widgets.behavior as be
 
 
 class SpriteVisualTest(Widget):
@@ -91,7 +93,7 @@ class DialogueBoxVisualTest(Widget):
         ]
         lbl = Label(text='Lines will appear here.')
         d = di.DialogueBox(
-            lines,
+            lines=lines,
             display_text_on=lbl
         )
         a = AnchorLayout(anchor_x='center', anchor_y='center')
@@ -108,9 +110,64 @@ class DialogueBoxVisualTest(Widget):
         pass
 
 
+class CornerWidget(FloatLayout, be.MouseoverBehavior):
+    center_label = ObjectProperty()
+    display_str = StringProperty('')
+    background = ObjectProperty()
+
+    def on_size(self, *args):
+        self.background.size = self.size
+
+    def on_pos(self, *args):
+        self.background.pos = self.pos
+
+    def on_enter(self):
+        self.center_label.text = self.display_str
+
+    def on_leave(self):
+        self.center_label.text = ''
+
+
+class MouseoverBehaviorVisualTest(Widget):
+    @property
+    def widget(self):
+        return self._widget
+
+    def __init__(self, **kwargs):
+        super(MouseoverBehaviorVisualTest, self).__init__(**kwargs)
+        self._widget = FloatLayout()
+        a = AnchorLayout(anchor_x='center', anchor_y='center', size=self.size)
+        lbl = Label(text='')
+        a.add_widget(lbl)
+        self._widget.add_widget(a)
+
+        corners = [
+            ['Lower left', dict(), (.8, 0, 0, 1)],
+            ['Upper left', dict(top=1), (0, 0, .8, 1)],
+            ['Upper right', dict(right=1, top=1), (0, .8, 0, 1)],
+            ['Lower right', dict(right=1), (0, .8, .8, 1)],
+        ]
+
+        for c in corners:
+            m = CornerWidget(
+                center_label=lbl,
+                display_str=c[0],
+                pos_hint=c[1],
+                size_hint=(.3, .3)
+            )
+            with m.canvas:
+                Color(*c[2])
+                m.background = Rectangle()
+            self._widget.add_widget(m)
+
+    def go(self):
+        pass
+
+
 visual_tests = dict(
     sprite=SpriteVisualTest(),
-    dialogue=DialogueBoxVisualTest()
+    dialogue=DialogueBoxVisualTest(),
+    mouseover=MouseoverBehaviorVisualTest()
 )
 
 
