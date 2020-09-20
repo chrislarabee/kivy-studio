@@ -6,6 +6,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 
 
+# TODO: Turn this into a behavior!
 class TooltipLayout(FloatLayout):
     relative_x = OptionProperty('right', options=['left', 'center', 'right'])
     relative_y = OptionProperty('above', options=['above', 'center', 'below'])

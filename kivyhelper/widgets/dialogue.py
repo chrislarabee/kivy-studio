@@ -163,5 +163,3 @@ class DialogueBox(FloatLayout):
         self.lines = new_lines
         self.reset()
         return self
-
-# TODO: Add WrapLabel widget class.
