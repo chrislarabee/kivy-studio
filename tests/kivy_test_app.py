@@ -126,21 +126,39 @@ class DialogueBoxVisualTest(Widget):
 
 
 class CornerWidget(FloatLayout, wd.MouseoverBehavior):
-    center_label = ObjectProperty()
     display_str = StringProperty('')
     background = ObjectProperty()
+    tool_tip = ObjectProperty()
 
     def on_size(self, *args):
-        self.background.size = self.size
+        self.background.size = args[1]
 
     def on_pos(self, *args):
-        self.background.pos = self.pos
+        self.background.pos = args[1]
+
+    def show_tool_tip(self):
+        self.tool_tip = wd.TooltipLayout(size=(150, 100), edge_padding=10)
+        self.tool_tip.set_tip_pos(self.border_point)
+        with self.tool_tip.canvas.before:
+            Color(0, 0, 0, 1)
+            Rectangle(size=self.tool_tip.size, pos=self.tool_tip.pos)
+        a = AnchorLayout(
+            anchor_x='center', anchor_y='center', size=self.tool_tip.size,
+            size_hint=(None, None),
+            pos=self.tool_tip.pos
+        )
+        lbl = wd.WrapLabel(
+            text=f'{self.display_str}, collide={self.tool_tip.pos}'
+        )
+        a.add_widget(lbl)
+        self.tool_tip.add_widget(a)
+        self.add_widget(self.tool_tip)
 
     def on_enter(self):
-        self.center_label.text = self.display_str
+        self.show_tool_tip()
 
     def on_leave(self):
-        self.center_label.text = ''
+        self.remove_widget(self.tool_tip)
 
 
 class MouseoverBehaviorVisualTest(Widget):
@@ -152,8 +170,6 @@ class MouseoverBehaviorVisualTest(Widget):
         super(MouseoverBehaviorVisualTest, self).__init__(**kwargs)
         self._widget = FloatLayout()
         a = AnchorLayout(anchor_x='center', anchor_y='center', size=self.size)
-        lbl = Label(text='')
-        a.add_widget(lbl)
         self._widget.add_widget(a)
 
         corners = [
@@ -165,7 +181,6 @@ class MouseoverBehaviorVisualTest(Widget):
 
         for c in corners:
             m = CornerWidget(
-                center_label=lbl,
                 display_str=c[0],
                 pos_hint=c[1],
                 size_hint=(.3, .3)
