@@ -1,9 +1,9 @@
-import kivyhelper.widgets._misc as m
+import kivyhelper.widgets as wd
 
 
-class TestTooltipLayout:
+class TestTooltipBehavior:
     def test_mod_mouse_pos(self):
-        tt = m.TooltipLayout(size=(100, 500))
+        tt = wd.TooltipBehavior(size=(100, 500))
         assert tt._mod_mouse_pos(500, 500, (1920, 1080)) == (500, 500)
         assert tt._mod_mouse_pos(1900, 500, (1920, 1080)) == (1820, 500)
         assert tt._mod_mouse_pos(500, 1000, (1920, 1080)) == (500, 580)
@@ -11,7 +11,7 @@ class TestTooltipLayout:
         assert tt._mod_mouse_pos(-50, 500, (1920, 1080)) == (10, 500)
 
     def test_get_edge_pos(self):
-        tt = m.TooltipLayout(size=(100, 500))
+        tt = wd.TooltipBehavior(size=(100, 500))
         # Test default settings:
         assert tt._get_edge_pos(500, 1000) == (500, 1500, 600, 1000)
         # Test left position:
@@ -26,7 +26,7 @@ class TestTooltipLayout:
         assert tt._get_edge_pos(500, 1000) == (450, 1250, 550, 750)
 
     def test_mod_props(self):
-        tt = m.TooltipLayout(size=(100, 500))
+        tt = wd.TooltipBehavior(size=(100, 500))
         # Test default settings:
         assert tt.width == 100
         assert tt.height == 500

@@ -125,6 +125,10 @@ class DialogueBoxVisualTest(Widget):
         pass
 
 
+class TooltipAnchor(AnchorLayout, wd.TooltipBehavior):
+    pass
+
+
 class CornerWidget(FloatLayout, wd.MouseoverBehavior):
     display_str = StringProperty('')
     background = ObjectProperty()
@@ -137,21 +141,21 @@ class CornerWidget(FloatLayout, wd.MouseoverBehavior):
         self.background.pos = args[1]
 
     def show_tool_tip(self):
-        self.tool_tip = wd.TooltipLayout(size=(150, 100), edge_padding=10)
+        self.tool_tip = TooltipAnchor(
+            size=(150, 100),
+            edge_padding=10,
+            anchor_x='center',
+            anchor_y='center',
+            size_hint=(None, None),
+        )
         self.tool_tip.set_tip_pos(self.border_point)
         with self.tool_tip.canvas.before:
             Color(0, 0, 0, 1)
             Rectangle(size=self.tool_tip.size, pos=self.tool_tip.pos)
-        a = AnchorLayout(
-            anchor_x='center', anchor_y='center', size=self.tool_tip.size,
-            size_hint=(None, None),
-            pos=self.tool_tip.pos
-        )
         lbl = wd.WrapLabel(
             text=f'{self.display_str}, collide={self.tool_tip.pos}'
         )
-        a.add_widget(lbl)
-        self.tool_tip.add_widget(a)
+        self.tool_tip.add_widget(lbl)
         self.add_widget(self.tool_tip)
 
     def on_enter(self):
