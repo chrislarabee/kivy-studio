@@ -44,7 +44,7 @@ class MouseoverBehavior(Widget):
         """
         if not self.get_root_window():
             return
-        pos = args[1]
+        pos = self.to_widget(*args[1])
         inside = self.collide_point(*pos)
         if self.hovered == inside:
             return

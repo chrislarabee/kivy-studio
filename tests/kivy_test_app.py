@@ -1,13 +1,13 @@
 import sys
 
 from kivy.app import App
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 
 import kivyhelper.widgets as wd
@@ -131,14 +131,7 @@ class TooltipAnchor(AnchorLayout, wd.TooltipBehavior):
 
 class CornerWidget(FloatLayout, wd.MouseoverBehavior):
     display_str = StringProperty('')
-    background = ObjectProperty()
     tool_tip = ObjectProperty()
-
-    def on_size(self, *args):
-        self.background.size = args[1]
-
-    def on_pos(self, *args):
-        self.background.pos = args[1]
 
     def show_tool_tip(self):
         self.tool_tip = TooltipAnchor(
@@ -172,9 +165,15 @@ class MouseoverBehaviorVisualTest(Widget):
 
     def __init__(self, **kwargs):
         super(MouseoverBehaviorVisualTest, self).__init__(**kwargs)
-        self._widget = FloatLayout()
-        a = AnchorLayout(anchor_x='center', anchor_y='center', size=self.size)
+        self._widget = RelativeLayout()
+        a = AnchorLayout(anchor_x='center', anchor_y='center')
         self._widget.add_widget(a)
+        nested = RelativeLayout(size_hint=(.3, .3))
+        with nested.canvas:
+            Color(1, 1, 1, 1)
+            r = Rectangle()
+        a.add_widget(nested)
+        nested.bind(size=lambda *x: setattr(r, 'size', x[1]))
 
         corners = [
             ['Lower left', dict(), (.8, 0, 0, 1)],
@@ -183,16 +182,24 @@ class MouseoverBehaviorVisualTest(Widget):
             ['Lower right', dict(right=1), (0, .8, .8, 1)],
         ]
 
-        for c in corners:
-            m = CornerWidget(
-                display_str=c[0],
-                pos_hint=c[1],
+        def _gen_corner(args):
+            result = CornerWidget(
+                display_str=args[0],
+                pos_hint=args[1],
                 size_hint=(.3, .3)
             )
-            with m.canvas:
-                Color(*c[2])
-                m.background = Rectangle()
-            self._widget.add_widget(m)
+            with result.canvas:
+                Color(*args[2])
+                r_ = Rectangle()
+                result.bind(size=lambda *x: setattr(r_, 'size', x[1]))
+                result.bind(pos=lambda *x: setattr(r_, 'pos', x[1]))
+            return result
+
+        for c in corners:
+            w1 = _gen_corner(c)
+            self._widget.add_widget(w1)
+            w2 = _gen_corner(c)
+            nested.add_widget(w2)
 
     def go(self):
         pass
